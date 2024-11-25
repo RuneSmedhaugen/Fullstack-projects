@@ -1,0 +1,50 @@
+/* LAGRINGSPLASS FOR LOGIKK HENTET FRA ChatGPT SOM KANSKJE KAN BRUKES TIL Å GJØRE STJELING AV BILDER VANSKELIGERE.. IKKE IMPLEMENTERT NOEN STEDER */
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'PrintScreen' || (event.ctrlKey && event.key === 's')) {
+        // Log the event to your server
+        fetch('/log-event', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ event: 'Unauthorized Action', timestamp: new Date() }),
+        });
+        alert('This action is logged and not permitted.');
+    }
+});
+
+
+document.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+    alert('Right-click is disabled to protect content.');
+});
+
+
+document.addEventListener('keydown', (event) => {
+    if (event.ctrlKey && event.key === 's') {
+        event.preventDefault();
+        alert('Saving this page is not allowed.');
+    }
+});
+
+
+document.addEventListener('keydown', (event) => {
+    // Windows screenshot shortcuts
+    if (event.key === 'PrintScreen' || (event.ctrlKey && event.key === 'p')) {
+        alert('Screenshot detected! This action is not allowed.');
+        navigator.clipboard.writeText('');
+    }
+
+    // macOS example
+    if (event.metaKey && event.shiftKey && (event.key === '3' || event.key === '4')) {
+        alert('Screenshot detected! This action is not allowed.');
+    }
+});
+
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'PrintScreen') {
+        alert('Screenshot detected! This action is not allowed.');
+        // Optionally clear the clipboard to prevent copying the screen
+        navigator.clipboard.writeText('');
+    }
+});

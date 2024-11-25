@@ -1,0 +1,230 @@
+/* components.css */
+
+/* Buttons */
+button {
+    padding: 10px 15px;
+    border-radius: 20px;
+    background: linear-gradient(45deg, var(--highlight-color), var(--secondary-highlight-color));
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+}
+
+/* Inputs */
+.search-section input {
+    padding: 10px;
+    border-radius: 25px 0 0 25px;
+    outline: none;
+    border: none;
+    width: 300px;
+    box-shadow: inset 0 4px 8px 20px var(--shadow-light);
+}
+
+body.dark-mode .search-section input {
+    background-color: var(--background-color-dark);
+    color: var(--text-color-dark);
+}
+
+/* artwork-modal */
+.artwork-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    transition: visibility 0s, opacity 0.3s ease-in-out;
+}
+
+/* Modal content */
+.artwork-modal.open {
+    visibility: visible;
+    opacity: 1;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 800px;  /* Adjust max width to your liking */
+    width: 100%;
+    max-height: 90vh;  /* Make sure content doesn't exceed viewport height */
+    overflow-y: auto;  /* Allow scrolling if the content is too tall */
+}
+
+/* Image styling */
+.artwork-modal-image {
+    width: 100%;
+    max-width: 100%;  /* Ensures image fits within the modal's width */
+    max-height: 70vh;  /* Ensures image doesn't exceed a certain height */
+    object-fit: contain;  /* Ensures the image scales proportionally */
+    border-radius: 8px;
+    margin-bottom: 20px; /* Adds space between image and other content */
+}
+
+/* Close button */
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* Dark mode styles */
+.dark-mode {
+    background-color: #333;
+    color: #fff;
+}
+
+.dark-mode .modal-content {
+    background-color: #444;
+    color: #fff;
+}
+
+.dark-mode .close-modal {
+    color: #fff;
+}
+
+
+/* registerPage */
+.register-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 60px;
+}
+
+.register-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    margin-top: 20px;
+    background-color: var(--background-color);
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+h1 {
+    font-size: 1.8em;
+    color: var(--primary-text-color);
+    margin-bottom: 20px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background-color: var(--input-background-color);
+    color: var(--text-color);
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--button-color);
+    color: #fff;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+    background-color: var(--button-hover-color);
+}
+
+.error-message {
+    color: var(--error-color);
+    margin-bottom: 15px;
+}
+
+
+/* Search field */
+.search-container {
+    position: relative;
+    display: inline-block;
+    margin-top: 60px;
+}
+
+.search-field {
+    display: flex;
+    align-items: center;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    width: 300px; 
+    margin: 0 auto;
+    
+}
+
+.search-field:hover {
+    transform: scale(1.05);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+
+.search-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 16px;
+    width: 100%;
+    padding: 0;
+    cursor: pointer;
+    
+}
+
+.search-input::placeholder {
+    color: #cfcfcf;
+}
+
+.talk-bubble {
+    position: absolute;
+    top: -45px; 
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    white-space: nowrap;
+    animation: fade-in 0.5s ease;
+}
+
+.talk-bubble::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+
+
+
+
+
+

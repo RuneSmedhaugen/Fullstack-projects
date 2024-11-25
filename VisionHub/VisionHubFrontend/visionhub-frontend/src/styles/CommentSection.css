@@ -1,0 +1,105 @@
+/* Comments Section */
+.comments-section {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: var(--background-color);
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading for Comments */
+.comments-section h3 {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    color: var(--primary-text-color);
+}
+
+/* List of Comments */
+.comments-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.comments-section li {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--input-background-color);
+    margin-bottom: 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.comments-section li:hover {
+    background-color: var(--highlight-color); /* Light background on hover */
+}
+
+/* Username and Comment Text */
+.comments-section li p {
+    margin: 5px 0;
+    color: var(--text-color);
+}
+
+.comments-section li strong {
+    color: var(--username-color); /* Username color */
+    font-weight: bold;
+}
+
+/* Date of Comment */
+.comment-date {
+    font-size: 0.85em;
+    color: var(--secondary-text-color);
+}
+
+/* Textarea for Comment Input */
+.comment-input textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--input-background-color);
+    color: var(--text-color);
+    resize: vertical;
+    min-height: 80px;
+    margin-top: 10px;
+    font-size: 1em;
+}
+
+/* Submit Button */
+.comment-input button {
+    padding: 10px 15px;
+    border-radius: 8px;
+    background-color: var(--button-color);
+    color: white;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+    border: none;
+}
+
+.comment-input button:hover {
+    background-color: var(--button-hover-color);
+}
+
+/* Dark Mode Styles */
+.dark-mode .comments-section {
+    background-color: #444;
+}
+
+.dark-mode .comments-section li {
+    background-color: #555;
+}
+
+.dark-mode .comment-input textarea {
+    background-color: #333;
+    color: #fff;
+}
+
+.dark-mode .comment-input button {
+    background-color: var(--button-color-dark);
+}
+
+.dark-mode .comment-input button:hover {
+    background-color: var(--button-hover-color-dark);
+}
+

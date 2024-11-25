@@ -1,0 +1,49 @@
+
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--highlight-color);
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.profile-details {
+    max-width: 60%;
+}
+
+.profile-details h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--highlight-color);
+}
+
+.profile-details p {
+    margin: 5px 0;
+}
+
+.edit-profile-button {
+    background-color: var(--highlight-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.edit-profile-button:hover {
+    background-color: var(--secondary-highlight-color);
+}
+
+.artwork-section {
+    margin-top: 30px;
+}
+
+.artwork-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: var(--highlight-color);
+}

@@ -1,0 +1,23 @@
+/* base.css */
+:root {
+    --background-color-light: #f4f4f4;
+    --background-color-dark: #1f1f1f;
+    --text-color-light: #333;
+    --text-color-dark: #ddd;
+    --highlight-color: #4b0082;
+    --secondary-highlight-color: #00b4db;
+    --shadow-light: rgba(0, 0, 0, 0.2);
+    --shadow-dark: rgba(255, 255, 255, 0.2);
+}
+
+body, .layout {
+    background-color: var(--background-color-light);
+    color: var(--text-color-light);
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    min-height: 100vh;
+}
+
+

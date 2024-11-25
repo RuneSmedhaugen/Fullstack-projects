@@ -1,0 +1,55 @@
+/* layout.css */
+
+/* Top Banner */
+.top-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-image: url('../img/banner1.png');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    height: 100px;
+    box-shadow: 0 4px 8px var(--shadow-light);
+}
+
+/* Search Section */
+.search-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+}
+
+/* Artwork List Layout */
+.artwork-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 30px;
+    justify-items: center;
+    transition: padding 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .top-banner {
+        flex-direction: column;
+        padding: 10px;
+    }
+    .search-section, .auth-section {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+
+.logo-image {
+    width: 150px; 
+    height: auto; 
+}
+
+.top-banner .logo-container {
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+}
