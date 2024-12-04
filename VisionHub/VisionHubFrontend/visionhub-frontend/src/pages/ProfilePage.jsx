@@ -75,21 +75,17 @@ const ProfilePage = ({ isDarkMode }) => {
                     <>
                         <div className="profile-details">
                             <h1>{user.name}</h1>
-                            <p><strong>Username:</strong> {user.name}</p>
+                            <p><strong>Username:</strong> {user.userName}</p>
                             <p><strong>Email:</strong> {user.email}</p>
                             <p><strong>Biography:</strong> {user.biography || 'No biography provided.'}</p>
                             <p><strong>Birthdate:</strong> {user.birthdate ? new Date(user.birthdate).toLocaleDateString() : 'Not provided'}</p>
+                            {isOwnProfile && (
+                                <div className="action-buttons">
+                                    <button onClick={handleEditProfile}>Edit Profile</button>
+                                    <button onClick={handleUpload}>Upload Artwork</button>
+                                </div>
+                            )}
                         </div>
-                        {isOwnProfile && currentUser && (
-                            <>
-                                <button className="edit-profile-button" onClick={handleEditProfile}>
-                                    Edit Profile
-                                </button>
-                                <button className="upload-button" onClick={handleUpload}>
-                                    Upload Artwork
-                                </button>
-                            </>
-                        )}
                     </>
                 ) : (
                     <p>Loading profile...</p>

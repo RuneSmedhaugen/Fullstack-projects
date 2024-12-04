@@ -1,29 +1,64 @@
-
+.profile-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    box-shadow: 0 4px 10px var(--shadow-light);
+    border-radius: 10px;
+}
 
 .profile-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
     border-bottom: 2px solid var(--highlight-color);
     padding-bottom: 20px;
     margin-bottom: 30px;
 }
 
 .profile-details {
-    max-width: 60%;
+    flex: 2;
+    margin-right: 20px;
+}
+
+.profile-avatar {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-avatar img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid var(--highlight-color);
+    object-fit: cover;
 }
 
 .profile-details h1 {
-    font-size: 2rem;
-    margin-bottom: 10px;
+    font-size: 2.5rem;
+    margin-bottom: 15px;
     color: var(--highlight-color);
 }
 
 .profile-details p {
-    margin: 5px 0;
+    font-size: 1rem;
+    margin: 8px 0;
 }
 
-.edit-profile-button {
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.action-buttons button {
     background-color: var(--highlight-color);
     color: white;
     border: none;
@@ -34,16 +69,30 @@
     transition: background-color 0.3s ease;
 }
 
-.edit-profile-button:hover {
+.action-buttons button:hover {
     background-color: var(--secondary-highlight-color);
 }
 
 .artwork-section {
+    width: 100%;
     margin-top: 30px;
+    text-align: center;
 }
 
 .artwork-section h2 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     margin-bottom: 20px;
     color: var(--highlight-color);
+}
+
+.artwork-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.error-message {
+    color: var(--error-color);
+    font-size: 1rem;
+    font-weight: bold;
 }

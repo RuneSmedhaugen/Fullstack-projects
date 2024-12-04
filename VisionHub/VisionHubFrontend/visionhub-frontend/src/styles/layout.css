@@ -10,15 +10,65 @@
     background-position: center;
     color: white;
     height: 100px;
+    padding: 0 20px;
     box-shadow: 0 4px 8px var(--shadow-light);
+}
+
+.auth-section {
+    display: flex;
+    gap: 10px; 
+    align-items: center;
+    justify-content: flex-end; 
+    width: 300px;
+}
+
+/* Buttons */
+button, .profile-button {
+    padding: 10px 15px;
+    border-radius: 20px;
+    background: linear-gradient(45deg, var(--highlight-color), var(--secondary-highlight-color));
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+    border: none;
+    font-size: 14px;
+    text-decoration: none; /* For link buttons */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+button:hover, .profile-button:hover {
+    transform: scale(1.05);
+    background: linear-gradient(45deg, var(--secondary-highlight-color), var(--highlight-color));
+}
+
+.logout-button {
+    background-color: var(--error-color);
+    background: linear-gradient(45deg, #ff6b6b, #ff4b4b); /* Custom error gradient */
+}
+
+.logout-button:hover {
+    transform: scale(1.05);
+    background: linear-gradient(45deg, #ff4b4b, #ff6b6b);
+}
+
+.dark-mode-toggle {
+    font-size: 14px;
+    padding: 10px 15px;
+}
+
+.profile-button {
+    font-size: 14px;
+    text-decoration: none;
 }
 
 /* Search Section */
 .search-section {
+    flex-grow: 1;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    
 }
 
 /* Artwork List Layout */

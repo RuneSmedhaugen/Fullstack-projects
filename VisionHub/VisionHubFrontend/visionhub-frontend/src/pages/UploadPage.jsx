@@ -1,139 +1,144 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { artworkService } from '../services/apiService';
-import CategoryList from '../components/CategoryList';
+import React, { useState, useEffect } from 'react';
+import { categoryService, artworkService } from '../services/apiService';
 
 const UploadPage = () => {
     const [formData, setFormData] = useState({
         categoryId: '',
+        categoryName: '', // To display the selected category name
         title: '',
         description: '',
         isFeatured: false,
         file: null,
     });
-    const [errorMessage, setErrorMessage] = useState('');
-    const navigate = useNavigate();
 
-    const handleCategoryClick = (categoryId) => {
-        setFormData((prevState) => ({
-            ...prevState,
+    const [categories, setCategories] = useState([]);
+    const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const data = await categoryService.getAllCategories();
+                setCategories(data);
+            } catch (error) {
+                setError('Failed to load categories.');
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
+    const handleCategoryClick = (categoryId, categoryName) => {
+        setFormData((prev) => ({
+            ...prev,
             categoryId,
+            categoryName, // Save the category name for display
         }));
     };
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData((prevState) => ({
-            ...prevState,
-            [name]: type === 'checkbox' ? checked : value,
-        }));
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        setFormData((prevState) => ({
-            ...prevState,
-            file,
-        }));
+        setFormData((prev) => ({ ...prev, file: e.target.files[0] }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         try {
-            const userID = localStorage.getItem('userId');
-            await artworkService.addArtwork({ ...formData, userID });
-            navigate('/');
+            await artworkService.addArtwork(formData);
+            setSuccessMessage('Artwork uploaded successfully!');
+            setFormData({
+                categoryId: '',
+                categoryName: '',
+                title: '',
+                description: '',
+                isFeatured: false,
+                file: null,
+            });
         } catch (error) {
-            setErrorMessage('Failed to upload artwork. Please try again.');
-            console.error(error);
+            setError('Failed to upload artwork.');
+            console.error('Error uploading artwork:', error);
         }
     };
 
     return (
         <div className="upload-page">
-            <div className="upload-form-container">
-                <h1>Upload Your Artwork</h1>
-                {errorMessage && <p className="error-message">{errorMessage}</p>}
-                <form onSubmit={handleSubmit} className="upload-form">
-                    <div className="form-group">
-                        <label htmlFor="categoryId">Category</label>
-                        <CategoryList onCategoryClick={handleCategoryClick} />
-                        {formData.categoryId && (
-                            <p>
-                                Selected Category: <strong>{formData.categoryId}</strong>
-                            </p>
-                        )}
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="title">Title</label>
-                        <input
-                            type="text"
-                            id="title"
-                            name="title"
-                            value={formData.title}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="description">Description</label>
-                        <textarea
-                            id="description"
-                            name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            rows="4"
-                            required
-                        />
-                    </div>
-                    <div className="form-group checkbox-group">
-                        <label>
-                            <input
-                                type="checkbox"
-                                name="isFeatured"
-                                checked={formData.isFeatured}
-                                onChange={handleChange}
-                            />
-                            Mark as Featured
-                        </label>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="file">Upload File</label>
-                        <input
-                            type="file"
-                            id="file"
-                            name="file"
-                            onChange={handleFileChange}
-                            required
-                        />
-                    </div>
-                    <button type="submit" className="submit-button">
-                        Upload
-                    </button>
-                </form>
-            </div>
+            <h2>Upload Artwork</h2>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
+            
+            <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label>Title:</label>
+                    <input
+                        type="text"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        required
+                    />
+                </div>
+                
+                <div className="form-group">
+                    <label>Description:</label>
+                    <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        required
+                    />
+                </div>
+                
+                <div className="form-group">
+                    <label>Categories:</label>
+                    <ul className="categories">
+                        {categories.map((category) => (
+                            <li
+                                key={category.id}
+                                className="category-item"
+                                onClick={() => handleCategoryClick(category.id, category.name)}
+                            >
+                                {category.name}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                {formData.categoryName && (
+                    <p>
+                        Selected Category: <strong>{formData.categoryName}</strong>
+                    </p>
+                )}
+                
+                <div className="form-group">
+                    <label>File:</label>
+                    <input
+                        type="file"
+                        onChange={handleFileChange}
+                        required
+                    />
+                </div>
+                
+                <div className="form-group">
+                    <label>Feature this artwork?</label>
+                    <input
+                        type="checkbox"
+                        name="isFeatured"
+                        checked={formData.isFeatured}
+                        onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, isFeatured: e.target.checked }))
+                        }
+                    />
+                </div>
+                
+                <button type="submit">Upload</button>
+            </form>
         </div>
     );
 };
 
 export default UploadPage;
-
-
-
-
-
-
-
-
-document.addEventListener('keydown', (event) => {
-    if (event.key === 'PrintScreen' || (event.ctrlKey && event.key === 's')) {
-        
-        fetch('/log-event', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ event: 'Unauthorized Action', timestamp: new Date() }),
-        });
-        alert('This action is logged and not permitted.');
-    }
-});

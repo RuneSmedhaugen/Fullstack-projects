@@ -1,5 +1,4 @@
-/* CategoryList.css */
-
+/* CategoryList container */
 .category-list {
     display: flex;
     justify-content: center;
@@ -13,6 +12,7 @@
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* Category list styling */
 .categories {
     display: flex;
     justify-content: space-around;
@@ -22,33 +22,40 @@
     margin: 0;
 }
 
+/* Individual category button */
 .category-item {
-    font-size: 12px;
+    font-size: 14px; /* Increased font size for better readability */
     font-weight: bold;
-    padding: 15px 25px;
+    padding: 15px 30px; /* Slightly larger padding for a more prominent button */
     text-transform: uppercase;
     color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.2); 
+    background: linear-gradient(45deg, #4a00e0, #00b4db); /* Gradient background for the button */
     border-radius: 30px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3); 
-    backdrop-filter: blur(10px); 
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3); /* Enhanced shadow for a more elevated look */
+    backdrop-filter: blur(5px);
+    border: 2px solid transparent;
+    background-clip: padding-box; /* Fixes border color issue when using gradient */
 }
 
+/* Hover effect for category item */
 .category-item:hover {
-    background-color: rgba(255, 255, 255, 0.6); 
-    transform: translateY(-5px); 
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5); 
-    color: #4a00e0; 
-    letter-spacing: 1px;
+    background: linear-gradient(45deg, #00b4db, #4a00e0); /* Reverse gradient on hover */
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5); /* Deeper shadow */
+    color: #ffffff; /* Keep text white on hover */
+    letter-spacing: 2px; /* Adds a more noticeable letter-spacing */
+    border-color: #ffffff; /* Border turns white on hover */
 }
 
+/* Active effect for category item */
 .category-item:active {
-    transform: scale(0.95);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
+    transform: scale(0.95); /* Slightly shrink on click */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Smaller shadow */
 }
 
+/* Responsive styling for mobile */
 @media (max-width: 768px) {
     .categories {
         flex-direction: column;
@@ -58,5 +65,7 @@
         width: 100%;
         margin: 5px 0;
         text-align: center;
+        font-size: 16px; /* Larger font size for mobile */
+        padding: 12px 25px; /* Adjust padding for mobile view */
     }
 }

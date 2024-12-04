@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { categoryService } from '../services/apiService';
+import '../styles/CategoryList.css';
 
 const CategoryList = ({ onCategoryClick }) => {
     const [categories, setCategories] = useState([]);

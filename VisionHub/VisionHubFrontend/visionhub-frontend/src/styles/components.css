@@ -35,7 +35,7 @@ body.dark-mode .search-section input {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.7);  /* Slightly darker overlay */
     z-index: 1000;
     transition: visibility 0s, opacity 0.3s ease-in-out;
 }
@@ -48,41 +48,68 @@ body.dark-mode .search-section input {
 
 .modal-content {
     background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 800px;  /* Adjust max width to your liking */
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 900px;  /* Increased width for larger screen sizes */
     width: 100%;
-    max-height: 90vh;  /* Make sure content doesn't exceed viewport height */
-    overflow-y: auto;  /* Allow scrolling if the content is too tall */
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);  /* Softer shadow */
+    transition: transform 0.3s ease;
+}
+
+.modal-content:hover {
+    transform: scale(1.02);  /* Subtle hover effect */
 }
 
 /* Image styling */
 .artwork-modal-image {
     width: 100%;
-    max-width: 100%;  /* Ensures image fits within the modal's width */
-    max-height: 70vh;  /* Ensures image doesn't exceed a certain height */
-    object-fit: contain;  /* Ensures the image scales proportionally */
-    border-radius: 8px;
-    margin-bottom: 20px; /* Adds space between image and other content */
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);  /* Soft shadow */
 }
 
 /* Close button */
 .close-modal {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 15px;
+    right: 15px;
     background-color: transparent;
     border: none;
-    font-size: 20px;
+    font-size: 24px;
+    color: #333;
     cursor: pointer;
+    padding: 10px;
+    transition: color 0.3s ease;
+}
+
+.close-modal:hover {
+    color: #ff6347;  /* Hover color */
+}
+
+/* Artwork Title */
+.artwork-modal-title {
+    font-size: 2em;
+    font-weight: 700;
+    color: #333;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* Description Styling */
+.modal-description {
+    font-size: 1.1em;
+    color: #555;
+    line-height: 1.6;
+    text-align: center;
+    margin-bottom: 25px;
 }
 
 /* Dark mode styles */
-.dark-mode {
-    background-color: #333;
-    color: #fff;
-}
-
 .dark-mode .modal-content {
     background-color: #444;
     color: #fff;
@@ -91,6 +118,60 @@ body.dark-mode .search-section input {
 .dark-mode .close-modal {
     color: #fff;
 }
+
+.dark-mode .artwork-modal-image {
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);  /* Light box shadow for dark mode */
+}
+
+/* Buttons */
+button {
+    padding: 12px 18px;
+    border-radius: 25px;
+    background: linear-gradient(45deg, var(--highlight-color), var(--secondary-highlight-color));
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+    border: none;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+/* Comment Section */
+.comment-section {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.comment-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 25px;
+    margin-bottom: 15px;
+    background-color: var(--input-background-color);
+    border: 1px solid var(--border-color);
+}
+
+.comment-input:focus {
+    outline: none;
+    box-shadow: 0 0 8px var(--highlight-color);
+}
+
+.comment-button {
+    padding: 12px 25px;
+    background-color: var(--highlight-color);
+    border-radius: 25px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.comment-button:hover {
+    background-color: var(--secondary-highlight-color);
+}
+
 
 
 /* registerPage */

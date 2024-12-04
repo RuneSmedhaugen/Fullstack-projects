@@ -1,74 +1,164 @@
+:root {
+    --light-bg: #f8f9fa;
+    --light-text: #333;
+    --dark-bg: #1e1e1e;
+    --dark-text: #f1f1f1;
+    --primary: #007bff;
+    --primary-hover: #0056b3;
+    --success: #28a745;
+    --success-hover: #218838;
+    --error: #dc3545;
+}
+
+body.light-mode {
+    background-color: var(--light-bg);
+    color: var(--light-text);
+}
+
+body.dark-mode {
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+}
+
 .upload-page {
-    max-width: 800px;
-    margin: 0 auto;
+    max-width: 600px;
+    margin: 20px auto;
     padding: 20px;
-}
-
-.upload-form-container {
-    background-color: var(--background-light);
-    padding: 20px;
+    background-color: var(--light-bg);
     border-radius: 8px;
-    box-shadow: 0 4px 8px var(--shadow-light);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.upload-form-container h1 {
-    font-size: 2rem;
+body.dark-mode .upload-page {
+    background-color: var(--dark-bg);
+}
+
+.upload-page h2 {
     margin-bottom: 20px;
     text-align: center;
-    color: var(--highlight-color);
+    color: var(--light-text);
+    transition: color 0.3s ease;
 }
 
-.upload-form .form-group {
-    margin-bottom: 15px;
+body.dark-mode .upload-page h2 {
+    color: var(--dark-text);
 }
 
-.upload-form .form-group label {
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     font-weight: bold;
-    color: var(--text-color);
+    color: var(--light-text);
+    transition: color 0.3s ease;
 }
 
-.upload-form .form-group input,
-.upload-form .form-group textarea {
+body.dark-mode .form-group label {
+    color: var(--dark-text);
+}
+
+input[type="text"],
+textarea,
+input[type="file"] {
     width: 100%;
     padding: 10px;
-    font-size: 1rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid #ccc;
     border-radius: 4px;
+    font-size: 16px;
+    background-color: var(--light-bg);
+    color: var(--light-text);
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-.upload-form .form-group textarea {
-    resize: none;
+body.dark-mode input[type="text"],
+body.dark-mode textarea,
+body.dark-mode input[type="file"] {
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+    border-color: #555;
 }
 
-.upload-form .checkbox-group label {
+textarea {
+    resize: vertical;
+    height: 80px;
+}
+
+input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.categories {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
     gap: 10px;
-    font-weight: normal;
+    justify-content: center;
 }
 
-.upload-form .submit-button {
-    background-color: var(--highlight-color);
+.category-item {
+    display: inline-block;
+    padding: 8px 12px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #555;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-align: center;
+    min-width: 80px; /* Ensures consistent size */
+    text-overflow: ellipsis;
+}
+
+body.dark-mode .category-item {
+    background-color: #333;
+    color: #ddd;
+}
+
+.category-item:hover {
+    background-color: var(--primary);
     color: white;
+}
+
+.category-item:active {
+    background-color: var(--primary-hover);
+}
+
+button[type="submit"] {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: var(--success);
     border: none;
-    padding: 10px 20px;
-    font-size: 1rem;
-    border-radius: 5px;
+    border-radius: 4px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    display: block;
-    margin: 0 auto;
 }
 
-.upload-form .submit-button:hover {
-    background-color: var(--secondary-highlight-color);
+button[type="submit"]:hover {
+    background-color: var(--success-hover);
 }
 
-.error-message {
-    color: var(--error-color);
+p {
+    font-size: 14px;
+    margin: 10px 0;
+}
+
+p[style="color: red;"] {
+    color: var(--error);
     font-weight: bold;
-    margin-bottom: 15px;
-    text-align: center;
+}
+
+p[style="color: green;"] {
+    color: var(--success);
+    font-weight: bold;
 }
