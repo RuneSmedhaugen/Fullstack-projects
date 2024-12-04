@@ -31,7 +31,7 @@
 }
 
 .comments-section li:hover {
-    background-color: var(--highlight-color); /* Light background on hover */
+    background-color: var(--highlight-color); 
 }
 
 /* Username and Comment Text */
@@ -41,7 +41,7 @@
 }
 
 .comments-section li strong {
-    color: var(--username-color); /* Username color */
+    color: var(--username-color); 
     font-weight: bold;
 }
 

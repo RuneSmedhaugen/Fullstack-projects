@@ -112,7 +112,7 @@ input[type="checkbox"] {
     color: #555;
     transition: background-color 0.3s ease, color 0.3s ease;
     text-align: center;
-    min-width: 80px; /* Ensures consistent size */
+    min-width: 80px; 
     text-overflow: ellipsis;
 }
 
