@@ -52,7 +52,11 @@ namespace VisionHub.Controllers
         {
             try
             {
-                // Call the updated method using the new model
+                // Validate the request
+                if (model.UserID <= 0)
+                    return BadRequest(new { message = "Invalid user ID" });
+
+                // Call the service to update user details
                 _userService.UpdateUserDetails(model);
 
                 return Ok(new { message = "User updated successfully!" });
@@ -62,6 +66,7 @@ namespace VisionHub.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
 
 
 

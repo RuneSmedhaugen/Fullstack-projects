@@ -1,88 +1,25 @@
 .profile-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     padding: 20px;
-    max-width: 1200px;
+    max-width: 800px;
     margin: 0 auto;
-    color: var(--text-color);
-    background-color: var(--background-color);
-    box-shadow: 0 4px 10px var(--shadow-light);
-    border-radius: 10px;
+    background: linear-gradient(135deg, #ffcccb, #ffe4e1);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    color: #333;
 }
 
 .profile-header {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    width: 100%;
-    border-bottom: 2px solid var(--highlight-color);
-    padding-bottom: 20px;
-    margin-bottom: 30px;
-}
-
-.profile-details {
-    flex: 2;
-    margin-right: 20px;
-}
-
-.profile-avatar {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.profile-avatar img {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    border: 3px solid var(--highlight-color);
-    object-fit: cover;
+    margin-bottom: 20px;
 }
 
 .profile-details h1 {
     font-size: 2.5rem;
-    margin-bottom: 15px;
-    color: var(--highlight-color);
-}
-
-.profile-details p {
-    font-size: 1rem;
-    margin: 8px 0;
-}
-
-.action-buttons {
-    display: flex;
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.action-buttons button {
-    background-color: var(--highlight-color);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.action-buttons button:hover {
-    background-color: var(--secondary-highlight-color);
-}
-
-.artwork-section {
-    width: 100%;
-    margin-top: 30px;
-    text-align: center;
+    color: #d62e56;
 }
 
 .artwork-section h2 {
     font-size: 1.8rem;
-    margin-bottom: 20px;
-    color: var(--highlight-color);
+    color: #d62e56;
 }
 
 .artwork-list {
@@ -91,8 +28,32 @@
     gap: 20px;
 }
 
-.error-message {
-    color: var(--error-color);
+.artwork-item {
+    background: #fff;
+    border: 2px solid #d62e56;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: left;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.artwork-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.delete-artwork-btn {
+    margin-top: 10px;
+    padding: 8px 12px;
     font-size: 1rem;
-    font-weight: bold;
+    color: white;
+    background: #d62e56;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.delete-artwork-btn:hover {
+    background-color: #ff5f78;
 }
