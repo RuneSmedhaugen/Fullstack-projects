@@ -48,11 +48,13 @@ namespace VisionHub.Controllers
 
         // PUT api/user/update
         [HttpPut("update")]
-        public IActionResult UpdateUser([FromBody] Users model)
+        public IActionResult UpdateUser([FromBody] UpdateUserRequest model)
         {
             try
             {
-                _userService.UpdateUser(model.Id, model.UserName, model.Name, model.Email, model.PasswordHash, model.Biography, model.BirthDate);
+                // Call the updated method using the new model
+                _userService.UpdateUserDetails(model);
+
                 return Ok(new { message = "User updated successfully!" });
             }
             catch (Exception ex)
@@ -60,6 +62,8 @@ namespace VisionHub.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+
 
         // DELETE api/user/{id}
         [HttpDelete("{id}")]

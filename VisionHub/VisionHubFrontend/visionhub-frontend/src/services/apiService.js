@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_BASE_URL = 'https://localhost:7213/api';
 
-// Function to handle any GET request
+// GET request
 const get = async (endpoint) => {
     try {
         const response = await axios.get(`${API_BASE_URL}${endpoint}`);
@@ -13,7 +13,7 @@ const get = async (endpoint) => {
     }
 };
 
-// Function to handle any POST request
+//  POST request
 const post = async (endpoint, data, isFormData = false) => {
     try {
         const config = isFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
@@ -25,7 +25,7 @@ const post = async (endpoint, data, isFormData = false) => {
     }
 };
 
-// Function to handle any PUT request
+// PUT request
 const put = async (endpoint, data, isFormData = false) => {
     try {
         const config = isFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
@@ -37,7 +37,7 @@ const put = async (endpoint, data, isFormData = false) => {
     }
 };
 
-// Function to handle any DELETE request
+// DELETE request
 const remove = async (endpoint) => {
     try {
         const response = await axios.delete(`${API_BASE_URL}${endpoint}`);

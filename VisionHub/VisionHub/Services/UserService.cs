@@ -47,24 +47,38 @@ namespace VisionHub.Services
             ExecuteNonQuery(query, parameters);
         }
 
-        public void UpdateUser(int UserID, string newUsername, string newName, string newEmail, string NewPassword, string newBiography, DateTime newBirthdate)
+        public void UpdateUserDetails(UpdateUserRequest updateRequest)
         {
-            string salt = GenerateSalt();
-            string passwordHash = HashPassword(NewPassword, salt);
-            string query = "UPDATE Users SET Username = @Username, Name = @Name, Email = @Email, PasswordHash = @PasswordHash, Biography = @Biography, Birthdate = @Birthdate WHERE UserID = @UserID";
-            var parameters = new[]
+            var existingUser = GetUserInfo(updateRequest.UserID).FirstOrDefault();
+            if (existingUser == null)
+                throw new Exception("User not found");
+
+            // Start building the SQL query and parameters
+            string query = "UPDATE Users SET Name = @Name, Email = @Email, Biography = @Biography, Birthdate = @Birthdate";
+            var parameters = new List<SqlParameter>
             {
-                new SqlParameter("@UserID", UserID),
-                new SqlParameter("@Username", newUsername),
-                new SqlParameter("@Name", newName),
-                new SqlParameter("@Email", newEmail),
-                new SqlParameter("@PasswordHash", passwordHash),
-                new SqlParameter("@Salt", salt),
-                new SqlParameter("@Biography", newBiography),
-                new SqlParameter("@Birthdate", newBirthdate)
+                new SqlParameter("@UserID", updateRequest.UserID),
+                new SqlParameter("@Name", updateRequest.Name ?? existingUser.Name),
+                new SqlParameter("@Email", updateRequest.Email ?? existingUser.Email),
+                new SqlParameter("@Biography", updateRequest.Biography ?? existingUser.Biography),
+                new SqlParameter("@Birthdate", updateRequest.BirthDate ?? existingUser.BirthDate)
             };
-            ExecuteNonQuery(query, parameters);
+
+            // Include password update logic if provided
+            if (!string.IsNullOrEmpty(updateRequest.NewPassword))
+            {
+                string salt = GenerateSalt();
+                string passwordHash = HashPassword(updateRequest.NewPassword, salt);
+                query += ", PasswordHash = @PasswordHash, Salt = @Salt";
+                parameters.Add(new SqlParameter("@PasswordHash", passwordHash));
+                parameters.Add(new SqlParameter("@Salt", salt));
+            }
+
+            query += " WHERE UserID = @UserID";
+
+            ExecuteNonQuery(query, parameters.ToArray());
         }
+
 
         public List<Users> GetUserInfo(int userID)
         {

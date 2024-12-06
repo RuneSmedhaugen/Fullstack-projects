@@ -9,6 +9,7 @@ import AuthProvider, { useAuth } from './services/AuthContext';
 import TopBanner from './components/TopBanner';
 import LoginDropDown from './components/LoginDropDown';
 import { userService } from './services/apiService';
+import EditProfilePage from './pages/EditProfilePage';
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(
@@ -87,6 +88,7 @@ const MainApp = ({ isDarkMode, setIsDarkMode }) => {
         <Route path="/register" element={<RegisterPage isDarkMode={isDarkMode} />} />
         <Route path="/profile/:id" element={<ProfilePage isDarkMode={isDarkMode} />} />
         <Route path="/search" element={<SearchResultsPage isDarkMode={isDarkMode} />} />
+        <Route path="/edit-profile" element={<EditProfilePage isDarkMode={isDarkMode} />} />
       </Routes>
 
       {isLoginOpen && (
