@@ -1,4 +1,4 @@
-import { FaUserCircle, FaSearch } from "react-icons/fa"; // Import FaSearch
+import { FaUserCircle, FaSearch } from "react-icons/fa";
 import DropdownMenu from "./DropdownMenu";
 import Logo from "../image/RollRadarLogoMain.png";
 import { useState } from 'react';

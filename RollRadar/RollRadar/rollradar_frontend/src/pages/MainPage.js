@@ -8,8 +8,8 @@ import "../style/MainPage.css";
 function MainPage() {
   const categories = ["Bowling balls", "Bowling alleys", "Bowling series", "Users"];
   const uploads = [
-    { title: "New Bowling Alley Review", description: "Check out this cool place!" },
-    { title: "Top 10 Bowling Balls of 2024", description: "Our best picks this year." },
+    { title: "Rune is so cool", description: "Check out this cool guy!" },
+    { title: "Top 10 Bowling Balls of 2024", description: "Rune's best picks this year." },
   ];
 
   return (
