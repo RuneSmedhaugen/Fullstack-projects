@@ -1,21 +1,26 @@
 const pool = require('../models/db');
 
 const createNewBoss = async (userId, level) => {
-    const basehp = 100;
-    const basestrength = 10;
-    const hp = basehp + (level - 1) * 10;
-    const strength = basestrength + (level - 1) * 10;
-    const xpReward = 50 + (level - 1);
-    const goldReward = 10 + (level - 1);
+    try {
+        const basehp = 100;
+        const basestrength = 10;
+        const hp = basehp + (level - 1) * 10;
+        const strength = basestrength + (level - 1) * 10;
+        const xpReward = 50 + (level - 1);
+        const goldReward = 10 + (level - 1);
 
-
-    const result = await pool.query(
-        `INSERT INTO Bosses (user_id, level, hp, strength, xp_reward, gold_reward)
-    VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-        [userId, level, hp, strength, xpReward, goldReward]
-    );
-    return result.rows[0];
+        const result = await pool.query(
+            `INSERT INTO Bosses (user_id, level, hp, strength, xp_reward, gold_reward)
+             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+            [userId, level, hp, strength, xpReward, goldReward]
+        );
+        return result.rows[0];
+    } catch (err) {
+        console.error('Error creating new boss:', err);
+        throw err;
+    }
 };
+
 
 exports.getBoss = async (req, res) => {
     try {
@@ -48,7 +53,7 @@ exports.attackBoss = async (req, res) => {
         }
 
         const bossResult = await pool.query(
-            `SELECT * FROM bosses WHERE user_id = $1 ORDER BY id DESC LIMIT`,
+            `SELECT * FROM bosses WHERE user_id = $1 ORDER BY id DESC LIMIT 1`,
             [userId]
         );
         let boss = bossResult.rows[0];
