@@ -5,7 +5,7 @@ exports.getUserProfile = async (req, res) => {
   try {
     const userId = req.user.id;
     const result = await pool.query(
-      'SELECT id, username, xp, strength, hp, created_at FROM users WHERE id = $1',
+      'SELECT id, username, email, xp, strength, hp, created_at FROM users WHERE id = $1',
       [userId]
     );
     if (result.rows.length === 0) {
@@ -18,18 +18,19 @@ exports.getUserProfile = async (req, res) => {
   }
 };
 
+
 // Update the authenticated user's profile
 exports.updateUserProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { username, xp, strength, hp } = req.body;
+    const { username, email, xp, strength, hp } = req.body;
 
     const result = await pool.query(
       `UPDATE users 
-       SET username = $1, xp = $2, strength = $3, hp = $4
-       WHERE id = $5 
-       RETURNING id, username, xp, strength, hp, created_at`,
-      [username, xp, strength, hp, userId]
+       SET username = $1, email = $2, xp = $3, strength = $4, hp = $5
+       WHERE id = $6 
+       RETURNING id, username, email, xp, strength, hp, created_at`,
+      [username, email, xp, strength, hp, userId]
     );
 
     if (result.rowCount === 0) {
