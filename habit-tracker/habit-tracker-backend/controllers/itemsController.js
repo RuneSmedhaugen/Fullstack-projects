@@ -1,6 +1,6 @@
 const pool = require('../models/db');
 
-// Get all available items
+
 exports.getItems = async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM items ORDER BY id ASC');
@@ -11,7 +11,7 @@ exports.getItems = async (req, res) => {
   }
 };
 
-// (Optional) Get a single item by ID
+
 exports.getItem = async (req, res) => {
   try {
     const itemId = req.params.id;

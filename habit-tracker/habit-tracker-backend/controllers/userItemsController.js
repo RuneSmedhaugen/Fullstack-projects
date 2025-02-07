@@ -1,6 +1,6 @@
 const pool = require('../models/db');
 
-// Get all items owned by the authenticated user (with item details)
+
 exports.getUserItems = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -25,18 +25,18 @@ exports.getUserItems = async (req, res) => {
   }
 };
 
-// Purchase an item (add or update the user_items record)
+
 exports.purchaseItem = async (req, res) => {
   try {
     const userId = req.user.id;
     const { item_id, quantity } = req.body;
-    // Check if the user already has this item
+    
     const checkResult = await pool.query(
       'SELECT * FROM user_items WHERE user_id = $1 AND item_id = $2',
       [userId, item_id]
     );
     if (checkResult.rows.length > 0) {
-      // Increase quantity if the record exists
+    
       const newQuantity = checkResult.rows[0].quantity + quantity;
       const updateResult = await pool.query(
         'UPDATE user_items SET quantity = $1 WHERE user_id = $2 AND item_id = $3 RETURNING *',
@@ -44,7 +44,7 @@ exports.purchaseItem = async (req, res) => {
       );
       return res.json({ message: 'Item quantity updated', userItem: updateResult.rows[0] });
     } else {
-      // Insert a new record if the user doesn't already have the item
+      
       const insertResult = await pool.query(
         'INSERT INTO user_items (user_id, item_id, quantity) VALUES ($1, $2, $3) RETURNING *',
         [userId, item_id, quantity]
@@ -57,11 +57,11 @@ exports.purchaseItem = async (req, res) => {
   }
 };
 
-// Use an item (decrease quantity or remove from inventory)
+
 exports.useItem = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { item_id } = req.body; // Assuming one unit is used per call
+    const { item_id } = req.body;
     const checkResult = await pool.query(
       'SELECT * FROM user_items WHERE user_id = $1 AND item_id = $2',
       [userId, item_id]
@@ -71,14 +71,14 @@ exports.useItem = async (req, res) => {
     }
     const userItem = checkResult.rows[0];
     if (userItem.quantity <= 1) {
-      // Remove the record if only one unit is available
+    
       await pool.query(
         'DELETE FROM user_items WHERE user_id = $1 AND item_id = $2',
         [userId, item_id]
       );
       return res.json({ message: 'Item used and removed from inventory' });
     } else {
-      // Otherwise, decrement the quantity
+      
       const newQuantity = userItem.quantity - 1;
       const updateResult = await pool.query(
         'UPDATE user_items SET quantity = $1 WHERE user_id = $2 AND item_id = $3 RETURNING *',

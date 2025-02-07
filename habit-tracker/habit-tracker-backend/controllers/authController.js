@@ -25,12 +25,11 @@ exports.register = async (req, res) => {
     }
 };
 
-// Login method with support for email or username
+
 exports.login = async (req, res) => {
     const { username, email, password } = req.body;
 
     try {
-        // If both username and email are passed, prioritize email
         const userQuery = email ? 
             pool.query('SELECT * FROM users WHERE email = $1', [email]) : 
             pool.query('SELECT * FROM users WHERE username = $1', [username]);

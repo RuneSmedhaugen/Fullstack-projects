@@ -1,6 +1,6 @@
 const pool = require('../models/db');
 
-// Get the authenticated user's profile
+
 exports.getUserProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -19,7 +19,7 @@ exports.getUserProfile = async (req, res) => {
 };
 
 
-// Update the authenticated user's profile
+
 exports.updateUserProfile = async (req, res) => {
   try {
     const userId = req.user.id;
