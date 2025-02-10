@@ -17,6 +17,7 @@ exports.getHabits = async (req, res) => {
 
 exports.addHabit = async (req, res) => {
     const userId = req.user.id;
+    
     const {
         name,
         description,
@@ -26,7 +27,7 @@ exports.addHabit = async (req, res) => {
         gold_reward
     } = req.body;
 
-    try {
+    try {    
         const result = await pool.query(
             `INSERT INTO habits
             (user_id, name, description, purpose, streak_current, streak_longest, time_perspective, xp_reward, gold_reward)
