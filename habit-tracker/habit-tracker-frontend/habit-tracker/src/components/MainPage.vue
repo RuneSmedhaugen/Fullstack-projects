@@ -19,12 +19,12 @@
   
   <script>
   import AddHabit from '../tabs/AddHabit.vue'
-  import BossBattle from '../Tabs/BossBattle.vue';
-  import ItemShop from '../Tabs/ItemShop.vue';
-  import UserProfile from '../Tabs/UserProfile.vue';
-  import UserSettings from '../Tabs/UserSettings.vue';
-  import UserStats from '../Tabs/UserStats.vue';
-  import YourHabits from '../Tabs/YourHabits.vue';
+  import BossBattle from '../tabs/BossBattle.vue';
+  import ItemShop from '../tabs/ItemShop.vue';
+  import UserProfile from '../tabs/UserProfile.vue';
+  import UserSettings from '../tabs/UserSettings.vue';
+  import UserStats from '../tabs/UserStats.vue';
+  import YourHabits from '../tabs/YourHabits.vue';
   
   export default {
     name: 'MainPage',

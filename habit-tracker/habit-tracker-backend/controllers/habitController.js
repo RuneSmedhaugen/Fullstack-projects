@@ -25,7 +25,7 @@ const addHabit = async (req, res) => {
     gold_reward,
   } = req.body;
 
-  try {    
+  try {
     const result = await pool.query(
       `INSERT INTO habits
         (user_id, name, description, purpose, streak_current, streak_longest, time_perspective, xp_reward, gold_reward)
@@ -64,7 +64,7 @@ const updateHabit = async (req, res) => {
     xp_reward,
     gold_reward
   } = req.body;
-  
+
   try {
     const result = await pool.query(
       `UPDATE habits
@@ -106,7 +106,7 @@ const updateHabit = async (req, res) => {
 const deleteHabit = async (req, res) => {
   const userId = req.user.id;
   const habitId = req.params.id;
-  
+
   try {
     const result = await pool.query(
       'DELETE FROM habits WHERE id = $1 AND user_id = $2 RETURNING *',
@@ -138,10 +138,102 @@ const markHabitDone = async (req, res) => {
   }
 };
 
+const getStats = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const totalHabitsResult = await pool.query(
+      'SELECT COUNT(*) FROM habits WHERE user_id = $1',
+      [userId]
+    );
+
+    const totalCompletionsResult = await pool.query(
+      `SELECT COUNT(*) FROM habit_completions hc 
+       JOIN habits h ON hc.habit_id = h.id 
+       WHERE h.user_id = $1`,
+      [userId]
+    );
+
+    const longestStreakResult = await pool.query(
+      `WITH streaks AS (
+         SELECT done_at::date AS completion_date, 
+                LAG(done_at::date) OVER (ORDER BY done_at::date) AS prev_date
+         FROM habit_completions hc
+         JOIN habits h ON hc.habit_id = h.id
+         WHERE h.user_id = $1
+       )
+       SELECT MAX(streak_length) AS longest_streak FROM (
+         SELECT completion_date, COUNT(*) AS streak_length 
+         FROM streaks 
+         WHERE completion_date = prev_date + INTERVAL '1 day'
+         GROUP BY completion_date
+       ) subquery`,
+      [userId]
+    );
+
+    const stats = {
+      totalHabits: parseInt(totalHabitsResult.rows[0].count, 10),
+      totalCompletions: parseInt(totalCompletionsResult.rows[0].count, 10),
+      longestStreak: longestStreakResult.rows[0]?.longest_streak || 0,
+    };
+
+    res.json(stats);
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+    res.status(500).json({ message: 'Server error fetching stats.' });
+  }
+};
+
+const getCompletionData = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const dailyCompletions = await pool.query(
+      `SELECT done_at::date AS date, COUNT(*) AS completions 
+       FROM habit_completions hc 
+       JOIN habits h ON hc.habit_id = h.id 
+       WHERE h.user_id = $1 
+       GROUP BY done_at::date 
+       ORDER BY done_at::date DESC 
+       LIMIT 7`,
+      [userId]
+    );
+
+    const totalHabitsResult = await pool.query(
+      'SELECT COUNT(*) FROM habits WHERE user_id = $1',
+      [userId]
+    );
+
+    const data = {
+      dailyCompletions: dailyCompletions.rows,
+      totalHabits: parseInt(totalHabitsResult.rows[0].count, 10),
+    };
+
+    const totalCompletionsResult = await pool.query(
+      `SELECT COUNT(*) AS total_completions 
+       FROM habit_completions hc 
+       JOIN habits h ON hc.habit_id = h.id 
+       WHERE h.user_id = $1`,
+      [userId]
+    );
+
+    const totalExpectedCompletions = data.totalHabits * 7;
+    const missedCompletions = totalExpectedCompletions - totalCompletionsResult.rows[0].total_completions;
+
+    data.missedCompletions = missedCompletions > 0 ? missedCompletions : 0;
+
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching completion data:', error);
+    res.status(500).json({ message: 'Server error fetching completion data.' });
+  }
+};
+
+
 module.exports = {
   getHabits,
   addHabit,
   updateHabit,
   deleteHabit,
   markHabitDone,
+  getStats,
+  getCompletionData,
 };
