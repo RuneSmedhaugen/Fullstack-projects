@@ -1,6 +1,5 @@
 const pool = require('../models/db');
 
-
 exports.getItems = async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM items ORDER BY id ASC');
@@ -10,7 +9,6 @@ exports.getItems = async (req, res) => {
     res.status(500).json({ error: 'Server error retrieving items' });
   }
 };
-
 
 exports.getItem = async (req, res) => {
   try {

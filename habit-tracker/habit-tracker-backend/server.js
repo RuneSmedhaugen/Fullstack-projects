@@ -25,7 +25,7 @@ app.use('/api/habits', habitRoutes);
 app.use('/api/bosses', bossRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/items', itemRoutes);
-app.use('/api/user-items', userItemsRoutes);
+app.use('/api/useritems', userItemsRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;

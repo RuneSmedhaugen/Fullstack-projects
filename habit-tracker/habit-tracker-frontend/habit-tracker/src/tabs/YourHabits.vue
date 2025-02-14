@@ -16,11 +16,14 @@
                 @change="handleCheckboxChange(habit)"
               />
               <label class="form-check-label" :for="'habit-' + habit.id">
-                {{ habit.name }}
+                Name: {{ habit.name }} |
+                Description: {{ habit.description }} |
+                Purpose: {{ habit.purpose }} |
+                Time Perspective: {{ habit.time_perspective }}
               </label>
             </div>
             <div>
-              <button class="btn btn-link" @click="toggleEdit(habit)">
+              <button class="btn btn-link" @click="toggleEdit(habit)"> Edit
                 <i class="bi bi-gear-fill"></i>
               </button>
             </div>
@@ -83,14 +86,15 @@
         habits: [],
         editingHabitId: null,
         errorMessage: "",
-        successMessage: ""
+        successMessage: "",
+        totalXp: 0,
+        totalGold: 0,
       };
     },
     mounted() {
       this.fetchHabits();
     },
     methods: {
-      
       async fetchHabits() {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -98,25 +102,24 @@
           return;
         }
         try {
-          
           const habitsResponse = await axios.get("http://localhost:5000/api/habits", {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           });
-         
+  
           let habits = habitsResponse.data.map((habit) => ({
             ...habit,
             editName: habit.name,
             editDescription: habit.description,
             editPurpose: habit.purpose,
             editTimePerspective: habit.time_perspective,
-            done: false  
+            done: false,
           }));
-          
+  
           const completionsResponse = await axios.get("http://localhost:5000/api/habits/completions", {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           });
           const completions = completionsResponse.data;
-          
+  
           habits.forEach((habit) => {
             if (completions.find((c) => c.habit_id === habit.id)) {
               habit.done = true;
@@ -129,41 +132,39 @@
         }
       },
   
-      
+      // Handle habit completion and reward XP/Gold
       async handleCheckboxChange(habit) {
-        
         if (habit.done) return;
-        await this.markHabitDone(habit);
-      },
   
-      
-      async markHabitDone(habit) {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          this.errorMessage = "No token found. Please log in again.";
-          return;
-        }
         try {
-          await axios.post(
+          const response = await axios.post(
             `http://localhost:5000/api/habits/${habit.id}/completion`,
             {},
-            { headers: { Authorization: `Bearer ${token}` } }
+            {
+              headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            }
           );
-          habit.done = true;
-          this.successMessage = `Habit "${habit.name}" marked as done!`;
+  
+          habit.done = true;  // Mark the habit as done
+          // Show the success message with XP and Gold reward
+          this.successMessage = `Habit completed! You earned ${response.data.xp_reward} XP and ${response.data.gold_reward} gold.`;
+          this.totalXp += response.data.xp_reward;
+          this.totalGold += response.data.gold_reward;
+  
+          this.fetchHabits(); 
         } catch (error) {
           this.errorMessage =
             error.response?.data?.message || "Error marking habit as done.";
         }
       },
   
-      
+      // Toggle habit edit mode
       toggleEdit(habit) {
         if (this.editingHabitId === habit.id) {
           this.editingHabitId = null;
         } else {
           this.editingHabitId = habit.id;
-        
+  
           habit.editName = habit.name;
           habit.editDescription = habit.description;
           habit.editPurpose = habit.purpose;
@@ -175,7 +176,7 @@
         this.editingHabitId = null;
       },
   
-      
+      // Update the habit details
       async updateHabit(habit) {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -193,11 +194,11 @@
               streak_current: habit.streak_current,
               streak_longest: habit.streak_longest,
               xp_reward: habit.xp_reward,
-              gold_reward: habit.gold_reward
+              gold_reward: habit.gold_reward,
             },
             { headers: { Authorization: `Bearer ${token}` } }
           );
-          
+  
           habit.name = response.data.name;
           habit.description = response.data.description;
           habit.purpose = response.data.purpose;
@@ -210,6 +211,7 @@
         }
       },
   
+      // Delete a habit
       async deleteHabit(habit) {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -218,7 +220,7 @@
         }
         try {
           await axios.delete(`http://localhost:5000/api/habits/${habit.id}`, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           });
           this.habits = this.habits.filter((h) => h.id !== habit.id);
           this.successMessage = `Habit "${habit.name}" deleted successfully!`;
@@ -226,8 +228,8 @@
           this.errorMessage =
             error.response?.data?.message || "Error deleting habit.";
         }
-      }
-    }
+      },
+    },
   };
   </script>
   

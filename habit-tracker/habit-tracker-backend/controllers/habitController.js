@@ -126,17 +126,47 @@ const deleteHabit = async (req, res) => {
 
 const markHabitDone = async (req, res) => {
   const { habitId } = req.params;
+  const userId = req.user.id;
+
   try {
-    const result = await pool.query(
-      `INSERT INTO habit_completions (habit_id) VALUES ($1) RETURNING *`,
+    // Fetch the habit to get its xp_reward and gold_reward
+    const habitResult = await pool.query(
+      'SELECT xp_reward, gold_reward FROM habits WHERE id = $1 AND user_id = $2',
+      [habitId, userId]
+    );
+
+    if (habitResult.rowCount === 0) {
+      return res.status(404).json({ message: 'Habit not found or not authorized' });
+    }
+
+    const habit = habitResult.rows[0];
+    
+    // Insert habit completion
+    const completionResult = await pool.query(
+      'INSERT INTO habit_completions (habit_id) VALUES ($1) RETURNING *',
       [habitId]
     );
-    res.status(201).json(result.rows[0]);
+
+    // Now update the user's XP and gold
+    await pool.query(
+      `UPDATE users
+       SET xp = xp + $1, gold = gold + $2
+       WHERE id = $3`,
+      [habit.xp_reward, habit.gold_reward, userId]
+    );
+
+    res.status(201).json({
+      message: 'Habit marked as done, rewards granted',
+      completion: completionResult.rows[0],
+      xp_reward: habit.xp_reward,
+      gold_reward: habit.gold_reward
+    });
   } catch (error) {
     console.error("Error marking habit as done:", error);
     res.status(500).json({ message: "Error marking habit as done" });
   }
 };
+
 
 const getStats = async (req, res) => {
   const userId = req.user.id;
