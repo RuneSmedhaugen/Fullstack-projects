@@ -11,13 +11,15 @@
                     <div class="card-body">
                         <h5 class="card-title text-lg font-medium">{{ item.name }}</h5>
                         <p class="card-text text-sm text-gray-600">{{ item.description }}</p>
-                        <p class="card-text font-semibold">Cost: <span class="text-yellow-500">{{ item.cost }} Gold</span></p>
+                        <p class="card-text font-semibold">Cost: <span class="text-yellow-500">{{ item.cost }}
+                                Gold</span></p>
                         <button class="btn btn-primary w-full py-2" @click="purchaseItem(item)">Purchase</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div v-if="message" class="alert alert-info mt-3 fixed-top w-100 text-center" :class="{'fade-out': fadeOut}" style="top: 50%; transform: translateY(-50%); z-index: 1050;">
+        <div v-if="message" class="alert alert-info mt-3 fixed-top w-100 text-center" :class="{ 'fade-out': fadeOut }"
+            style="top: 50%; transform: translateY(-50%); z-index: 1050;">
             {{ message }}
         </div>
     </div>
@@ -66,15 +68,16 @@ export default {
             }
         },
         getItemImage(item) {
-            return item.image_path || '/img/items/default.png';
+            return item.image_path || '../img/items/default.png';
         },
         async purchaseItem(item) {
             if (this.gold < item.cost) {
                 this.showMessage('Not enough gold to purchase this item.');
                 return;
             }
-            
+
             try {
+                // First, purchase the item
                 const response = await axios.post('http://localhost:5000/api/useritems/purchase', {
                     item_id: item.id,
                     quantity: 1
@@ -83,11 +86,28 @@ export default {
                         Authorization: `Bearer ${localStorage.getItem('token')}`
                     }
                 });
+
+                // Show message after purchase success
                 this.showMessage(response.data.message || 'Item purchased successfully!');
+
+                // Now, activate the item's effect
+                const activateResponse = await axios.post('http://localhost:5000/api/useritems/activate', {
+                    item_id: item.id
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                // Show message after item activation
+                this.showMessage(activateResponse.data.message || 'Item effect activated successfully!');
+
+                // Fetch the updated user profile (gold, items, etc.)
                 this.fetchUserProfile();
+
             } catch (error) {
-                console.error('Error purchasing item:', error);
-                this.showMessage('Error purchasing item.');
+                console.error('Error purchasing or activating item:', error);
+                this.showMessage('Error purchasing or activating item.');
             }
         },
         showMessage(msg) {

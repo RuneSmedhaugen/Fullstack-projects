@@ -2,9 +2,10 @@ const pool = require('../models/db');
 
 exports.getUserProfile = async (req, res) => {
   try {
+    console.log('getUserProfile triggered');
     const userId = req.user.id;
     const result = await pool.query(
-      'SELECT id, username, email, xp, strength, hp, gold, level, created_at FROM users WHERE id = $1',
+      'SELECT id, username, email, xp, strength, current_hp, max_hp, gold, level, created_at FROM users WHERE id = $1',
       [userId]
     );
     if (result.rows.length === 0) {
@@ -20,15 +21,15 @@ exports.getUserProfile = async (req, res) => {
 exports.updateUserProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { username, email, xp, strength, hp } = req.body;
+    const { username, email, xp, strength, current_hp, max_hp } = req.body;
     let newLevel = Math.floor(xp / 100);
 
     const result = await pool.query(
       `UPDATE users 
-       SET username = $1, email = $2, xp = $3, strength = $4, hp = $5, level = $6
-       WHERE id = $7 
-       RETURNING id, username, email, xp, strength, hp, gold, level, created_at`,
-      [username, email, xp, strength, hp, newLevel, userId]
+       SET username = $1, email = $2, xp = $3, strength = $4, current_hp = $5, max_hp = $6, level = $7
+       WHERE id = $8 
+       RETURNING id, username, email, xp, strength, current_hp, max_hp, gold, level, created_at`,
+      [username, email, xp, strength, current_hp, max_hp, newLevel, userId]
     );
 
     if (result.rowCount === 0) {
@@ -40,7 +41,6 @@ exports.updateUserProfile = async (req, res) => {
     res.status(500).json({ error: 'Server error updating user profile' });
   }
 };
-
 
 exports.deleteUserAccount = async (req, res) => {
   try {
@@ -57,4 +57,32 @@ exports.deleteUserAccount = async (req, res) => {
     console.error('Error deleting user account:', error);
     res.status(500).json({ error: 'Server error deleting user account' });
   }
+};
+
+exports.checkLevelUp = async (userId) => {
+  // Get the current user's xp, level, max_hp, and strength
+  const result = await pool.query(
+    'SELECT xp, level, max_hp, strength FROM users WHERE id = $1',
+    [userId]
+  );
+  if (result.rows.length === 0) throw new Error('User not found');
+  const user = result.rows[0];
+
+  // Calculate the new level (each 100 XP gives one level)
+  const newLevel = Math.floor(user.xp / 100);
+
+  // If the new level is greater than the current level, update the user's stats
+  if (newLevel > user.level) {
+    const levelDiff = newLevel - user.level;
+    const newMaxHp = user.max_hp + (10 * levelDiff);
+    const newStrength = user.strength + (5 * levelDiff);
+
+    // Update the user's level, max_hp, strength, and restore current_hp to newMaxHp
+    const updateResult = await pool.query(
+      'UPDATE users SET level = $1, max_hp = $2, strength = $3, current_hp = $2 WHERE id = $4 RETURNING *',
+      [newLevel, newMaxHp, newStrength, userId]
+    );
+    return updateResult.rows[0];
+  }
+  return null;
 };
