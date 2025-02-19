@@ -90,18 +90,6 @@ export default {
                 // Show message after purchase success
                 this.showMessage(response.data.message || 'Item purchased successfully!');
 
-                // Now, activate the item's effect
-                const activateResponse = await axios.post('http://localhost:5000/api/useritems/activate', {
-                    item_id: item.id
-                }, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
-                // Show message after item activation
-                this.showMessage(activateResponse.data.message || 'Item effect activated successfully!');
-
                 // Fetch the updated user profile (gold, items, etc.)
                 this.fetchUserProfile();
 
