@@ -1,10 +1,11 @@
 const pool = require('../models/db');
-const { 
-  applyHealthEffect, 
-  applyEggEffect, 
-  applyCritEffect, 
+const {
+  applyHealthEffect,
+  applyEggEffect,
+  applyCritEffect,
   applyForkEffect,
-  applyWalletEffect, 
+  applyWalletEffect,
+  applyTeapotEffect,
 } = require('./itemEffects');
 
 exports.getUserItems = async (req, res) => {
@@ -89,7 +90,6 @@ exports.useItem = async (req, res) => {
     const userId = req.user.id;
     const { item_id } = req.body;
 
-    // Fetch the user_item record joined with the item's effect.
     const checkResult = await pool.query(
       `SELECT ui.*, i.effect 
        FROM user_items ui 
@@ -120,13 +120,15 @@ exports.useItem = async (req, res) => {
       message = await applyForkEffect(userId, effect);
     } else if (effect.startsWith('wallet_')) {
       message = await applyWalletEffect(userId, effect);
+    } else if (effect.startsWith('teapot_')) {
+      message = await applyTeapotEffect(userId, effect);
     } else {
       return res.status(400).json({ error: 'Unknown item effect' });
     }
 
     // decrease the remaining uses (battles_remaining) for the item.
     await pool.query(
-      'UPDATE user_items SET battles_remaining = battles_remaining - 1 WHERE user_id = $1 AND item_id = $2',
+      'UPDATE user_items SET duration = duration - 1 WHERE user_id = $1 AND item_id = $2',
       [userId, item_id]
     );
 
@@ -140,38 +142,38 @@ exports.useItem = async (req, res) => {
 
 exports.activateItem = async (req, res) => {
   try {
-      const { item_id } = req.body;
-      const userId = req.user.id;
+    const { item_id } = req.body;
+    const userId = req.user.id;
 
-      // Fetch the item details
-      const itemQuery = await pool.query('SELECT * FROM items WHERE id = $1', [item_id]);
-      const item = itemQuery.rows[0];
+    // Fetch the item details
+    const itemQuery = await pool.query('SELECT * FROM items WHERE id = $1', [item_id]);
+    const item = itemQuery.rows[0];
 
-      if (!item) {
-          return res.status(404).json({ message: 'Item not found.' });
-      }
+    if (!item) {
+      return res.status(404).json({ message: 'Item not found.' });
+    }
 
-      // Apply the item effect
-      const effect = item.effect; // Assuming the effect is stored in the `effect` column of the items table
+    // Apply the item effect
+    const effect = item.effect; // Assuming the effect is stored in the `effect` column of the items table
 
-      // Example of activating the effect (crit, health, damage, etc.)
-      if (effect.startsWith('crit_')) {
-          const critBattles = parseInt(effect.split('_')[1], 10);
-          await pool.query('UPDATE users SET crit_bonus = crit_bonus + $1 WHERE id = $2', [critBattles, userId]);
-      } else if (effect.startsWith('hp_')) {
-          const hpIncrease = parseInt(effect.split('_')[1], 10);
-          await pool.query('UPDATE users SET hp = hp + $1 WHERE id = $2', [hpIncrease, userId]);
-      } else if (effect.startsWith('damage_')) {
-          const damageIncrease = parseInt(effect.split('_')[1], 10);
-          await pool.query('UPDATE users SET damage = damage + $1 WHERE id = $2', [damageIncrease, userId]);
-      }
+    // Example of activating the effect (crit, health, damage, etc.)
+    if (effect.startsWith('crit_')) {
+      const critBattles = parseInt(effect.split('_')[1], 10);
+      await pool.query('UPDATE users SET crit_bonus = crit_bonus + $1 WHERE id = $2', [critBattles, userId]);
+    } else if (effect.startsWith('hp_')) {
+      const hpIncrease = parseInt(effect.split('_')[1], 10);
+      await pool.query('UPDATE users SET hp = hp + $1 WHERE id = $2', [hpIncrease, userId]);
+    } else if (effect.startsWith('damage_')) {
+      const damageIncrease = parseInt(effect.split('_')[1], 10);
+      await pool.query('UPDATE users SET damage = damage + $1 WHERE id = $2', [damageIncrease, userId]);
+    }
 
-      // Optionally, mark the item as used
-      await pool.query('UPDATE user_items SET quantity = quantity - 1 WHERE user_id = $1 AND item_id = $2', [userId, item_id]);
+    // Optionally, mark the item as used
+    await pool.query('UPDATE user_items SET quantity = quantity - 1 WHERE user_id = $1 AND item_id = $2', [userId, item_id]);
 
-      res.json({ message: 'Item effect activated successfully!' });
+    res.json({ message: 'Item effect activated successfully!' });
   } catch (error) {
-      console.error('Error activating item:', error);
-      res.status(500).json({ message: 'Error activating item.' });
+    console.error('Error activating item:', error);
+    res.status(500).json({ message: 'Error activating item.' });
   }
 };

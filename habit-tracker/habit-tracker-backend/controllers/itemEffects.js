@@ -1,4 +1,5 @@
 const pool = require('../models/db');
+const activeLifestealEffects = {};
 
 // Health Potion Effect: Increase current HP up to max HP.
 async function applyHealthEffect(userId, healAmount) {
@@ -90,10 +91,37 @@ async function applyWalletEffect(userId, effect) {
     return `Wallet used! Boss strength decreased by ${debuff}. New strength: ${newStrength}.`;
 }
 
+async function applyTeapotEffect(userId, effect) {
+    let lifestealPercentage;
+    if (effect === 'teapot_gold') {
+      lifestealPercentage = 30; // Gold = 30% lifesteal
+    } else if (effect === 'teapot_silver') {
+      lifestealPercentage = 20; // Silver = 20% lifesteal
+    } else if (effect === 'teapot_bronze') {
+      lifestealPercentage = 10; // Bronze = 10% lifesteal
+    } else {
+      throw new Error('Unknown teapot effect');
+    }
+  
+    activeLifestealEffects[userId] = lifestealPercentage;
+    return `Lifesteal activated! You now restore ${lifestealPercentage}% of damage dealt as health until the battle ends.`;
+  }
+  
+  function getLifestealPercentage(userId) {
+    return activeLifestealEffects[userId] || 0;
+  }
+  
+  function clearLifestealEffect(userId) {
+    delete activeLifestealEffects[userId];
+  }
+
 module.exports = {
     applyWalletEffect,
     applyHealthEffect,
     applyEggEffect,
     applyCritEffect,
     applyForkEffect,
+    applyTeapotEffect,
+    getLifestealPercentage,
+    clearLifestealEffect,
 };
