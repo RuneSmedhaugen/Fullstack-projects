@@ -90,10 +90,11 @@ exports.useItem = async (req, res) => {
     const userId = req.user.id;
     const { item_id } = req.body;
 
+    // Fetch user item details, including effect and base duration from the items table.
     const checkResult = await pool.query(
-      `SELECT ui.*, i.effect 
-       FROM user_items ui 
-       JOIN items i ON ui.item_id = i.id 
+      `SELECT ui.*, i.effect, i.duration AS base_duration
+       FROM user_items ui
+       JOIN items i ON ui.item_id = i.id
        WHERE ui.user_id = $1 AND ui.item_id = $2`,
       [userId, item_id]
     );
@@ -103,11 +104,12 @@ exports.useItem = async (req, res) => {
     }
 
     const userItem = checkResult.rows[0];
-    const battlesRemaining = userItem.battles_remaining;
-    const effect = userItem.effect;
+    const baseDuration = userItem.base_duration; // the full uses for a fresh item
+    let newBattlesRemaining = userItem.battles_remaining - 1;
     let message = '';
 
-    // Branch based on effect type.
+    // Apply the effect based on the item's effect string.
+    const effect = userItem.effect;
     if (effect.startsWith('health_')) {
       const healAmount = parseInt(effect.split('_')[1], 10);
       message = await applyHealthEffect(userId, healAmount);
@@ -126,11 +128,29 @@ exports.useItem = async (req, res) => {
       return res.status(400).json({ error: 'Unknown item effect' });
     }
 
-    // decrease the remaining uses (battles_remaining) for the item.
-    await pool.query(
-      'UPDATE user_items SET duration = duration - 1 WHERE user_id = $1 AND item_id = $2',
-      [userId, item_id]
-    );
+    // Handle the item usage based on remaining uses and quantity.
+    if (newBattlesRemaining > 0) {
+      // Still has remaining uses on the current item instance.
+      await pool.query(
+        'UPDATE user_items SET battles_remaining = $1 WHERE user_id = $2 AND item_id = $3',
+        [newBattlesRemaining, userId, item_id]
+      );
+    } else {
+      // This item instance is used up.
+      if (userItem.quantity > 1) {
+        // Reduce the stack by 1 and reset the battles_remaining to the base duration for the next item.
+        await pool.query(
+          'UPDATE user_items SET quantity = quantity - 1, battles_remaining = $1 WHERE user_id = $2 AND item_id = $3',
+          [baseDuration, userId, item_id]
+        );
+      } else {
+        // Only one item left, so remove the row.
+        await pool.query(
+          'DELETE FROM user_items WHERE user_id = $1 AND item_id = $2',
+          [userId, item_id]
+        );
+      }
+    }
 
     return res.json({ message });
   } catch (error) {
@@ -153,25 +173,36 @@ exports.activateItem = async (req, res) => {
       return res.status(404).json({ message: 'Item not found.' });
     }
 
-    // Apply the item effect
-    const effect = item.effect; // Assuming the effect is stored in the `effect` column of the items table
+    const effect = item.effect; // e.g., 'toiletpaper_gold'
+    let bonus = 0;
 
-    // Example of activating the effect (crit, health, damage, etc.)
-    if (effect.startsWith('crit_')) {
-      const critBattles = parseInt(effect.split('_')[1], 10);
-      await pool.query('UPDATE users SET crit_bonus = crit_bonus + $1 WHERE id = $2', [critBattles, userId]);
-    } else if (effect.startsWith('hp_')) {
-      const hpIncrease = parseInt(effect.split('_')[1], 10);
-      await pool.query('UPDATE users SET hp = hp + $1 WHERE id = $2', [hpIncrease, userId]);
-    } else if (effect.startsWith('damage_')) {
-      const damageIncrease = parseInt(effect.split('_')[1], 10);
-      await pool.query('UPDATE users SET damage = damage + $1 WHERE id = $2', [damageIncrease, userId]);
+    if (effect === 'toiletpaper_gold') {
+      bonus = 15;
+    } else if (effect === 'toiletpaper_silver') {
+      bonus = 10;
+    } else if (effect === 'toiletpaper_bronze') {
+      bonus = 5;
+    } else if (effect.startsWith('crit_')) {
+      // Existing crit logic, if any
+      bonus = parseInt(effect.split('_')[1], 10);
+    } else {
+      // Other effects handling
+      return res.status(400).json({ message: 'Unknown item effect.' });
     }
 
-    // Optionally, mark the item as used
-    await pool.query('UPDATE user_items SET quantity = quantity - 1 WHERE user_id = $1 AND item_id = $2', [userId, item_id]);
+    // Increase the user's crit bonus by the bonus value.
+    await pool.query(
+      'UPDATE users SET crit_bonus = crit_bonus + $1 WHERE id = $2',
+      [bonus, userId]
+    );
 
-    res.json({ message: 'Item effect activated successfully!' });
+    // Optionally, mark the item as used (or decrement quantity)
+    await pool.query(
+      'UPDATE user_items SET quantity = quantity - 1 WHERE user_id = $1 AND item_id = $2',
+      [userId, item_id]
+    );
+
+    res.json({ message: `Crit bonus increased by ${bonus}%!` });
   } catch (error) {
     console.error('Error activating item:', error);
     res.status(500).json({ message: 'Error activating item.' });

@@ -87,6 +87,8 @@ exports.attackBoss = async (req, res) => {
                 `UPDATE users SET xp = xp + $1, gold = gold + $2 WHERE id = $3`,
                 [boss.xp_reward, boss.gold_reward, userId]
             );
+
+            await pool.query('UPDATE users SET crit_bonus = 0 WHERE id = $1', [userId]);
             
             // Clear lifesteal effect on boss defeat
             await clearLifestealEffect(userId);
@@ -111,6 +113,7 @@ exports.attackBoss = async (req, res) => {
 
         // If user is defeated, reset current_hp to max_hp
         if (user.current_hp <= 0) {
+            await pool.query('UPDATE users SET crit_bonus = 0 WHERE id = $1', [userId]);
             await pool.query(`UPDATE users SET current_hp = max_hp WHERE id = $1`, [userId]);
             return res.json({ message: 'User defeated! Try again.', log: turnLog, boss, user });
         }

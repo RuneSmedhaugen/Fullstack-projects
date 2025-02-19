@@ -5,7 +5,7 @@ exports.getUserProfile = async (req, res) => {
     console.log('getUserProfile triggered');
     const userId = req.user.id;
     const result = await pool.query(
-      'SELECT id, username, email, xp, strength, current_hp, max_hp, gold, level, created_at FROM users WHERE id = $1',
+      'SELECT id, username, email, xp, strength, current_hp, max_hp, gold, level, crit_bonus, created_at FROM users WHERE id = $1',
       [userId]
     );
     if (result.rows.length === 0) {
