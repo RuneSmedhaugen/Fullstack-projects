@@ -6,6 +6,7 @@ const {
   applyForkEffect,
   applyWalletEffect,
   applyTeapotEffect,
+  applyKeyEffect,
 } = require('./itemEffects');
 
 exports.getUserItems = async (req, res) => {
@@ -124,7 +125,9 @@ exports.useItem = async (req, res) => {
       message = await applyWalletEffect(userId, effect);
     } else if (effect.startsWith('teapot_')) {
       message = await applyTeapotEffect(userId, effect);
-    } else {
+    } else if (effect.startsWith('key_')) {
+      message = await applyKeyEffect(userId, effect);
+    }else {
       return res.status(400).json({ error: 'Unknown item effect' });
     }
 

@@ -72,7 +72,7 @@ exports.attackBoss = async (req, res) => {
         // User attacks boss
         const playerDamage = user.strength;
         boss.current_hp -= playerDamage;
-        turnLog.push(`User attacked boss for ${playerDamage} damage. Boss HP: ${Math.max(boss.current_hp, 0)}`);
+        turnLog.push(`You attacked boss for ${playerDamage} damage. Boss HP: ${Math.max(boss.current_hp, 0)}`);
 
         // Apply lifesteal effect
         if (lifestealPercentage > 0) {
@@ -111,14 +111,14 @@ exports.attackBoss = async (req, res) => {
         user.current_hp -= bossDamage;
         turnLog.push(`Boss attacked user for ${bossDamage} damage. User HP: ${Math.max(user.current_hp, 0)}`);
 
-        // If user is defeated, reset current_hp to max_hp
+        // If user is defeated, reset current hp to max hp
         if (user.current_hp <= 0) {
             await pool.query('UPDATE users SET crit_bonus = 0 WHERE id = $1', [userId]);
             await pool.query(`UPDATE users SET current_hp = max_hp WHERE id = $1`, [userId]);
-            return res.json({ message: 'User defeated! Try again.', log: turnLog, boss, user });
+            return res.json({ message: 'You are defeated! Try again.', log: turnLog, boss, user });
         }
 
-        // Update boss and user HP in the database
+        // Update boss and user hp in the database
         await pool.query(`UPDATE bosses SET current_hp = $1 WHERE id = $2`, [boss.current_hp, boss.id]);
         await pool.query(`UPDATE users SET current_hp = $1 WHERE id = $2`, [user.current_hp, userId]);
 

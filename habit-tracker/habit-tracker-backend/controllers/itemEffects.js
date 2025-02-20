@@ -115,6 +115,32 @@ async function applyTeapotEffect(userId, effect) {
     delete activeLifestealEffects[userId];
   }
 
+  // Apply Health and Strength effect for special keys
+async function applyKeyEffect(userId, healthBoost, strengthBoost, duration) {
+    try {
+        // Apply the effect by increasing health and strength temporarily
+        await pool.query(
+            `UPDATE users SET max_hp = max_hp + $1, strength = strength + $2 WHERE id = $3`,
+            [healthBoost, strengthBoost, userId]
+        );
+        
+        // Store effect in active_effects to expire later
+        await pool.query(
+            `INSERT INTO active_effects (user_id, effect_type, effect_value, duration, remaining_battles)
+             VALUES ($1, 'key_boost', $2, $3, $3) 
+             ON CONFLICT (user_id, effect_type) DO UPDATE 
+             SET effect_value = active_effects.effect_value + $2, remaining_battles = $3`,
+            [userId, healthBoost + strengthBoost, duration]
+        );
+
+        return `Key effect applied: +${healthBoost} HP, +${strengthBoost} Strength for ${duration} battles.`;
+    } catch (error) {
+        console.error('Error applying key effect:', error);
+        return 'Failed to apply key effect.';
+    }
+}
+
+
 module.exports = {
     applyWalletEffect,
     applyHealthEffect,
@@ -124,4 +150,5 @@ module.exports = {
     applyTeapotEffect,
     getLifestealPercentage,
     clearLifestealEffect,
+    applyKeyEffect,
 };
