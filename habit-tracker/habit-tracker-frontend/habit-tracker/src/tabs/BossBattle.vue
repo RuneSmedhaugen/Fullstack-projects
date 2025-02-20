@@ -53,7 +53,9 @@
             Restart Battle
           </button>
           <!-- Inventory button opens the modal -->
-          <button class="btn btn-secondary" @click="toggleInventory">Inventory</button>
+          <button class="btn btn-secondary" @click="toggleInventory">
+  <img src="@/img/sekk.png" alt="Inventory" class="inventory-icon" />
+</button>
         </div>
   
         <!-- Message -->
@@ -177,8 +179,7 @@
         return new URL(`../img/bosses/boss${level}.png`, import.meta.url).href;
       },
       getItemImage(item) {
-        // Return the image path for an item or a default image if not available
-        return item.image_path || new URL('../img/items/default.png', import.meta.url).href;
+        return item.image_path;
       },
       async fightTurn() {
         this.fightDisabled = true;
@@ -316,19 +317,15 @@
     max-height: 150px;
     border-radius: 50%;
   }
-  .inventory-button {
-    width: 50px;
-    height: 50px;
-    cursor: pointer;
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-  }
-  .inventory-overlay {
-    background: rgba(0, 0, 0, 0.7);
-  }
+
   .inventory-item {
     background: #f9f9f9;
   }
+
+  .inventory-icon {
+  width: 75px;
+  height: 75px;
+  margin-right: 5px;
+}
   </style>
   

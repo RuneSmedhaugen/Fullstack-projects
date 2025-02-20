@@ -3,29 +3,33 @@
       <h2>Your Habits</h2>
       <div v-if="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
       <div v-if="successMessage" class="alert alert-success">{{ successMessage }}</div>
-      <div class="list-group">
-        <div class="list-group-item" v-for="habit in habits" :key="habit.id">
+      
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link" :class="{ active: currentTab === 'uncompleted' }" @click="currentTab = 'uncompleted'">Uncompleted</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" :class="{ active: currentTab === 'completed' }" @click="currentTab = 'completed'">Completed</a>
+        </li>
+      </ul>
+  
+      <div class="list-group mt-3">
+        <div class="list-group-item" v-for="habit in filteredHabits" :key="habit.id">
           <div class="d-flex justify-content-between align-items-center">
             <div class="form-check">
               <input
-                class="form-check-input"
+                class="form-check-input custom-checkbox"
                 type="checkbox"
                 :id="'habit-' + habit.id"
                 :checked="habit.done"
-                :disabled="habit.done"
                 @change="handleCheckboxChange(habit)"
               />
               <label class="form-check-label" :for="'habit-' + habit.id">
-                Name: {{ habit.name }} |
-                Description: {{ habit.description }} |
-                Purpose: {{ habit.purpose }} |
-                Time Perspective: {{ habit.time_perspective }}
+                <span class="habit-details">Name: {{ habit.name }} | Description: {{ habit.description }} | Purpose: {{ habit.purpose }} | Time Perspective: {{ habit.time_perspective }}</span>
               </label>
             </div>
             <div>
-              <button class="btn btn-link" @click="toggleEdit(habit)"> Edit
-                <i class="bi bi-gear-fill"></i>
-              </button>
+              <button class="btn btn-link" @click="toggleEdit(habit)">Edit <i class="bi bi-gear-fill"></i></button>
             </div>
           </div>
   
@@ -54,20 +58,8 @@
               </div>
               <div>
                 <button type="submit" class="btn btn-primary btn-sm">Save</button>
-                <button
-                  type="button"
-                  class="btn btn-secondary btn-sm ms-2"
-                  @click="cancelEdit()"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-danger btn-sm ms-2"
-                  @click="deleteHabit(habit)"
-                >
-                  Delete
-                </button>
+                <button type="button" class="btn btn-secondary btn-sm ms-2" @click="cancelEdit()">Cancel</button>
+                <button type="button" class="btn btn-danger btn-sm ms-2" @click="deleteHabit(habit)">Delete</button>
               </div>
             </form>
           </div>
@@ -87,12 +79,18 @@
         editingHabitId: null,
         errorMessage: "",
         successMessage: "",
-        totalXp: 0,
-        totalGold: 0,
+        currentTab: 'uncompleted', // Set default tab
       };
     },
     mounted() {
       this.fetchHabits();
+    },
+    computed: {
+      filteredHabits() {
+        return this.currentTab === 'completed'
+          ? this.habits.filter(habit => habit.done)
+          : this.habits.filter(habit => !habit.done);
+      },
     },
     methods: {
       async fetchHabits() {
@@ -106,7 +104,7 @@
             headers: { Authorization: `Bearer ${token}` },
           });
   
-          let habits = habitsResponse.data.map((habit) => ({
+          this.habits = habitsResponse.data.map((habit) => ({
             ...habit,
             editName: habit.name,
             editDescription: habit.description,
@@ -120,45 +118,38 @@
           });
           const completions = completionsResponse.data;
   
-          habits.forEach((habit) => {
+          this.habits.forEach((habit) => {
             if (completions.find((c) => c.habit_id === habit.id)) {
               habit.done = true;
             }
           });
-          this.habits = habits;
         } catch (error) {
-          this.errorMessage =
-            error.response?.data?.message || "Error fetching habits.";
+          this.errorMessage = error.response?.data?.message || "Error fetching habits.";
         }
       },
   
-      // Handle habit completion and reward XP/Gold
       async handleCheckboxChange(habit) {
-        if (habit.done) return;
+        if (habit.done) {
+          habit.done = false; // Allow unchecking
+          // Optionally: send request to mark habit as incomplete
+        } else {
+          try {
+            const response = await axios.post(
+              `http://localhost:5000/api/habits/${habit.id}/completion`,
+              {},
+              {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+              }
+            );
   
-        try {
-          const response = await axios.post(
-            `http://localhost:5000/api/habits/${habit.id}/completion`,
-            {},
-            {
-              headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-            }
-          );
-  
-          habit.done = true;  // Mark the habit as done
-          // Show the success message with XP and Gold reward
-          this.successMessage = `Habit completed! You earned ${response.data.xp_reward} XP and ${response.data.gold_reward} gold.`;
-          this.totalXp += response.data.xp_reward;
-          this.totalGold += response.data.gold_reward;
-  
-          this.fetchHabits(); 
-        } catch (error) {
-          this.errorMessage =
-            error.response?.data?.message || "Error marking habit as done.";
+            habit.done = true;  // Mark the habit as done
+            this.successMessage = `Habit completed! You earned ${response.data.xp_reward} XP and ${response.data.gold_reward} gold.`;
+          } catch (error) {
+            this.errorMessage = error.response?.data?.message || "Error marking habit as done.";
+          }
         }
       },
   
-      // Toggle habit edit mode
       toggleEdit(habit) {
         if (this.editingHabitId === habit.id) {
           this.editingHabitId = null;
@@ -176,7 +167,6 @@
         this.editingHabitId = null;
       },
   
-      // Update the habit details
       async updateHabit(habit) {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -191,10 +181,6 @@
               description: habit.editDescription,
               purpose: habit.editPurpose,
               time_perspective: habit.editTimePerspective,
-              streak_current: habit.streak_current,
-              streak_longest: habit.streak_longest,
-              xp_reward: habit.xp_reward,
-              gold_reward: habit.gold_reward,
             },
             { headers: { Authorization: `Bearer ${token}` } }
           );
@@ -206,12 +192,10 @@
           this.editingHabitId = null;
           this.successMessage = `Habit "${habit.name}" updated successfully!`;
         } catch (error) {
-          this.errorMessage =
-            error.response?.data?.message || "Error updating habit.";
+          this.errorMessage = error.response?.data?.message || "Error updating habit.";
         }
       },
   
-      // Delete a habit
       async deleteHabit(habit) {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -225,8 +209,7 @@
           this.habits = this.habits.filter((h) => h.id !== habit.id);
           this.successMessage = `Habit "${habit.name}" deleted successfully!`;
         } catch (error) {
-          this.errorMessage =
-            error.response?.data?.message || "Error deleting habit.";
+          this.errorMessage = error.response?.data?.message || "Error deleting habit.";
         }
       },
     },
@@ -238,8 +221,51 @@
     padding: 20px;
   }
   
+  .nav-tabs .nav-link {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    transition: background-color 0.3s;
+  }
+  
+  .nav-tabs .nav-link.active {
+    background-color: #007bff;
+    color: white;
+  }
+  
   .list-group-item {
     margin-bottom: 10px;
+  }
+  
+  .custom-checkbox {
+    width: 20px;
+    height: 20px;
+    appearance: none;
+    border: 2px solid #007bff;
+    border-radius: 4px;
+    position: relative;
+  }
+  
+  .custom-checkbox:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+  
+  .custom-checkbox:checked::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 8px;
+    height: 16px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+  }
+  
+  .habit-details {
+    color: #333;
+    font-size: 14px;
+    margin-left: 10px;
   }
   </style>
   
