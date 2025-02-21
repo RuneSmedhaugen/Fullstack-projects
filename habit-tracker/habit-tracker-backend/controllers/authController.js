@@ -58,7 +58,7 @@ exports.login = async (req, res) => {
 
         // If the passwords don't match, return an error
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(400).json({ message: 'Wrong password, try again' });
         }
 
         // If login is successful, create a JWT token with user data

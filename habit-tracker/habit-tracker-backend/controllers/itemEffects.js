@@ -27,10 +27,24 @@ async function applyEggEffect(userId, effect) {
 }
 
 // Crit Effect: Increase user's crit bonus.
-async function applyCritEffect(userId, critValue) {
-    await pool.query('UPDATE users SET crit_bonus = crit_bonus + $1 WHERE id = $2', [critValue, userId]);
-    return `Crit chance increased by ${critValue}!`;
-}
+async function applyCritEffect(userId, effect) {
+    let bonus;
+    if (effect === 'toiletpaper_gold') {
+      bonus = 15;
+    } else if (effect === 'toiletpaper_silver') {
+      bonus = 10;
+    } else if (effect === 'toiletpaper_bronze') {
+      bonus = 5;
+    } else if (effect.startsWith('crit_')) {
+      bonus = parseInt(effect.split('_')[1], 10);
+    } else {
+      throw new Error('Unknown crit effect');
+    }
+    
+    await pool.query('UPDATE users SET crit_bonus = crit_bonus + $1 WHERE id = $2', [bonus, userId]);
+    return `Crit chance increased by ${bonus}%!`;
+  }
+  
 
 async function applyForkEffect(userId, effect) {
     let damage;
@@ -94,18 +108,23 @@ async function applyWalletEffect(userId, effect) {
 async function applyTeapotEffect(userId, effect) {
     let lifestealPercentage;
     if (effect === 'teapot_gold') {
-      lifestealPercentage = 30; // Gold = 30% lifesteal
+      lifestealPercentage = 30;
     } else if (effect === 'teapot_silver') {
-      lifestealPercentage = 20; // Silver = 20% lifesteal
+      lifestealPercentage = 20;
     } else if (effect === 'teapot_bronze') {
-      lifestealPercentage = 10; // Bronze = 10% lifesteal
+      lifestealPercentage = 10;
     } else {
       throw new Error('Unknown teapot effect');
     }
   
+    // Update the lifesteal column in the users table
+    await pool.query('UPDATE users SET lifesteal = $1 WHERE id = $2', [lifestealPercentage, userId]);
+    // Also store it in memory if needed for calculations during the battle
     activeLifestealEffects[userId] = lifestealPercentage;
+  
     return `Lifesteal activated! You now restore ${lifestealPercentage}% of damage dealt as health until the battle ends.`;
   }
+  
   
   function getLifestealPercentage(userId) {
     return activeLifestealEffects[userId] || 0;

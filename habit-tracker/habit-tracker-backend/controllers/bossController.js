@@ -70,13 +70,21 @@ exports.attackBoss = async (req, res) => {
         const lifestealPercentage = await getLifestealPercentage(userId);
         
         // User attacks boss
-        const playerDamage = user.strength;
-        boss.current_hp -= playerDamage;
-        turnLog.push(`You attacked boss for ${playerDamage} damage. Boss HP: ${Math.max(boss.current_hp, 0)}`);
+        const baseDamage = user.strength;
+        const critChance = user.crit_bonus || 0;
+        const randomValue = Math.random() * 100;
+        let actualDamage = baseDamage;
+        if (randomValue < critChance) {
+            actualDamage = baseDamage * 2; // Apply a crit multiplier of 2
+            turnLog.push(`Critical hit! Damage doubled to ${actualDamage}.`);
+        }
+        
+        boss.current_hp -= actualDamage;
+        turnLog.push(`You attacked boss for ${actualDamage} damage. Boss HP: ${Math.max(boss.current_hp, 0)}`);
 
-        // Apply lifesteal effect
+        // Apply lifesteal effect using actualDamage
         if (lifestealPercentage > 0) {
-            const healthRegained = Math.floor(playerDamage * (lifestealPercentage / 100));
+            const healthRegained = Math.floor(actualDamage * (lifestealPercentage / 100));
             user.current_hp = Math.min(user.current_hp + healthRegained, user.max_hp);
             turnLog.push(`Lifesteal restored ${healthRegained} HP. User HP: ${user.current_hp}`);
         }
@@ -109,16 +117,16 @@ exports.attackBoss = async (req, res) => {
         // Boss attacks user
         const bossDamage = boss.strength;
         user.current_hp -= bossDamage;
-        turnLog.push(`Boss attacked user for ${bossDamage} damage. User HP: ${Math.max(user.current_hp, 0)}`);
+        turnLog.push(`Boss attacked you for ${bossDamage} damage. Your HP: ${Math.max(user.current_hp, 0)}`);
 
-        // If user is defeated, reset current hp to max hp
+        // If user is defeated, reset current_hp to max_hp
         if (user.current_hp <= 0) {
             await pool.query('UPDATE users SET crit_bonus = 0 WHERE id = $1', [userId]);
             await pool.query(`UPDATE users SET current_hp = max_hp WHERE id = $1`, [userId]);
             return res.json({ message: 'You are defeated! Try again.', log: turnLog, boss, user });
         }
 
-        // Update boss and user hp in the database
+        // Update boss and user HP in the database
         await pool.query(`UPDATE bosses SET current_hp = $1 WHERE id = $2`, [boss.current_hp, boss.id]);
         await pool.query(`UPDATE users SET current_hp = $1 WHERE id = $2`, [user.current_hp, userId]);
 

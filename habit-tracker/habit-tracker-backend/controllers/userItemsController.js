@@ -116,9 +116,8 @@ exports.useItem = async (req, res) => {
       message = await applyHealthEffect(userId, healAmount);
     } else if (effect.startsWith('egg_')) {
       message = await applyEggEffect(userId, effect);
-    } else if (effect.startsWith('crit_')) {
-      const critValue = parseInt(effect.split('_')[1], 10);
-      message = await applyCritEffect(userId, critValue);
+    } else if (effect.startsWith('toiletpaper_')) {
+      message = await applyCritEffect(userId, effect);
     } else if (effect.startsWith('fork_')) {
       message = await applyForkEffect(userId, effect);
     } else if (effect.startsWith('wallet_')) {
@@ -127,7 +126,7 @@ exports.useItem = async (req, res) => {
       message = await applyTeapotEffect(userId, effect);
     } else if (effect.startsWith('key_')) {
       message = await applyKeyEffect(userId, effect);
-    }else {
+    } else {
       return res.status(400).json({ error: 'Unknown item effect' });
     }
 

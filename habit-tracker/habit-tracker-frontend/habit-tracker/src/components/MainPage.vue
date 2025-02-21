@@ -25,7 +25,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import AddHabit from '../tabs/AddHabit.vue';
 import BossBattle from '../tabs/BossBattle.vue';
 import ItemShop from '../tabs/ItemShop.vue';
