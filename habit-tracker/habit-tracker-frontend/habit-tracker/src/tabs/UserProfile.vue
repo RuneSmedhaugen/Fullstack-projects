@@ -156,7 +156,4 @@
   };
   </script>
   
-  <style scoped>
-  /* Add any necessary custom styles here */
-  </style>
   

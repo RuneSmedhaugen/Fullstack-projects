@@ -97,7 +97,7 @@ export default {
         },
         showItemDetails(item, event) {
             this.hoverItem = item;
-            this.modalX = event.clientX + 10; // Offset so it doesn’t overlap the cursor
+            this.modalX = event.clientX + 10;
             this.modalY = event.clientY + 10;
         },
         hideItemDetails() {
@@ -116,7 +116,6 @@ export default {
 </script>
 
 <style scoped>
-/* Game UI Theme */
 .shop-container {
     max-width: 900px;
     margin: 0 auto;
@@ -146,7 +145,6 @@ export default {
     font-size: 1.4rem;
 }
 
-/* Shop Grid */
 .shop-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -154,7 +152,6 @@ export default {
     justify-items: center;
 }
 
-/* Item Card */
 .shop-item {
     width: 120px;
     background: #222;
@@ -171,7 +168,6 @@ export default {
     border-color: #FFD700;
 }
 
-/* Item Image */
 .item-img {
     width: 100%;
     height: 100px;
@@ -180,7 +176,6 @@ export default {
     background: rgba(255, 255, 255, 0.1);
 }
 
-/* Item Text */
 .item-info {
     margin-top: 8px;
     text-align: center;
@@ -197,7 +192,6 @@ export default {
     color: #FFD700;
 }
 
-/* Hover Modal */
 .hover-modal {
     position: fixed;
     background: rgba(0, 0, 0, 0.85);
@@ -227,7 +221,6 @@ export default {
     font-weight: bold;
 }
 
-/* Purchase Message */
 .shop-message {
     font-size: 1rem;
     color: white;

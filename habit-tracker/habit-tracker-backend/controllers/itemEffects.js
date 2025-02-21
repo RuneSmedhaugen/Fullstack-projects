@@ -68,7 +68,6 @@ async function applyForkEffect(userId, effect) {
     }
     const boss = bossQuery.rows[0];
 
-    // Calculate new boss HP (ensure it doesn't go below zero)
     const newBossHP = Math.max(boss.current_hp - damage, 0);
     await pool.query(
         'UPDATE bosses SET current_hp = $1 WHERE id = $2',
@@ -81,16 +80,15 @@ async function applyForkEffect(userId, effect) {
 async function applyWalletEffect(userId, effect) {
     let debuff;
     if (effect === 'wallet_gold') {
-        debuff = 15; // Gold wallet reduces boss strength by 15
+        debuff = 15;
     } else if (effect === 'wallet_silver') {
-        debuff = 10; // Silver wallet reduces boss strength by 10
+        debuff = 10;
     } else if (effect === 'wallet_bronze') {
-        debuff = 5;  // Bronze wallet reduces boss strength by 5
+        debuff = 5;
     } else {
         throw new Error('Unknown wallet effect');
     }
 
-    // Retrieve the current boss for the user
     const bossQuery = await pool.query(
         'SELECT * FROM bosses WHERE user_id = $1 ORDER BY id DESC LIMIT 1',
         [userId]
@@ -117,9 +115,7 @@ async function applyTeapotEffect(userId, effect) {
       throw new Error('Unknown teapot effect');
     }
   
-    // Update the lifesteal column in the users table
     await pool.query('UPDATE users SET lifesteal = $1 WHERE id = $2', [lifestealPercentage, userId]);
-    // Also store it in memory if needed for calculations during the battle
     activeLifestealEffects[userId] = lifestealPercentage;
   
     return `Lifesteal activated! You now restore ${lifestealPercentage}% of damage dealt as health until the battle ends.`;
@@ -137,7 +133,6 @@ async function applyTeapotEffect(userId, effect) {
   // Apply Health and Strength effect for special keys
 async function applyKeyEffect(userId, healthBoost, strengthBoost, duration) {
     try {
-        // Apply the effect by increasing health and strength temporarily
         await pool.query(
             `UPDATE users SET max_hp = max_hp + $1, strength = strength + $2 WHERE id = $3`,
             [healthBoost, strengthBoost, userId]

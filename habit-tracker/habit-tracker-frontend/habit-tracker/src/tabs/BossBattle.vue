@@ -356,25 +356,19 @@ export default {
     border-radius: 50%;
 }
 
-/* Position boss image on the left */
+
 .boss-image-wrapper {
     position: absolute;
     bottom: 20%;
-    /* positions the bottom edge 30% above the container bottom */
     left: 35%;
-    /* adjust to move it left/right */
 }
 
-/* Position user avatar on the right */
 .avatar-image-wrapper {
     position: absolute;
     bottom: 23%;
-    /* same vertical offset */
     right: 35%;
-    /* adjust as needed */
 }
 
-/* Shared background container for the player area */
 .shared-background {
     position: relative;
     background-image: url('../img/rune_bakgrunn.png');
@@ -383,30 +377,25 @@ export default {
     background-repeat: no-repeat;
     border-radius: 8px;
     aspect-ratio: 16 / 9;
-    /* or remove if you prefer fixed height */
     height: 500px;
 }
 
-/* Flex container for stat cards and shared container */
+
 .stats-flex {
-    /* Full width with space-between alignment */
     width: 100%;
 }
 
-/* Allow the shared container to grow */
 .shared-container {
     flex: 1;
     margin: 0 20px;
 }
 
-/* Inventory icon styling */
 .inventory-icon {
     width: 75px;
     height: 75px;
     margin-right: 5px;
 }
 
-/* Card styling for stat cards */
 .card {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

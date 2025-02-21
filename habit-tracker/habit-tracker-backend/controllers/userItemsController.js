@@ -105,7 +105,7 @@ exports.useItem = async (req, res) => {
     }
 
     const userItem = checkResult.rows[0];
-    const baseDuration = userItem.base_duration; // the full uses for a fresh item
+    const baseDuration = userItem.base_duration;
     let newBattlesRemaining = userItem.battles_remaining - 1;
     let message = '';
 
@@ -132,7 +132,6 @@ exports.useItem = async (req, res) => {
 
     // Handle the item usage based on remaining uses and quantity.
     if (newBattlesRemaining > 0) {
-      // Still has remaining uses on the current item instance.
       await pool.query(
         'UPDATE user_items SET battles_remaining = $1 WHERE user_id = $2 AND item_id = $3',
         [newBattlesRemaining, userId, item_id]
@@ -167,7 +166,6 @@ exports.activateItem = async (req, res) => {
     const { item_id } = req.body;
     const userId = req.user.id;
 
-    // Fetch the item details
     const itemQuery = await pool.query('SELECT * FROM items WHERE id = $1', [item_id]);
     const item = itemQuery.rows[0];
 
@@ -175,7 +173,7 @@ exports.activateItem = async (req, res) => {
       return res.status(404).json({ message: 'Item not found.' });
     }
 
-    const effect = item.effect; // e.g., 'toiletpaper_gold'
+    const effect = item.effect;
     let bonus = 0;
 
     if (effect === 'toiletpaper_gold') {
@@ -185,20 +183,16 @@ exports.activateItem = async (req, res) => {
     } else if (effect === 'toiletpaper_bronze') {
       bonus = 5;
     } else if (effect.startsWith('crit_')) {
-      // Existing crit logic, if any
       bonus = parseInt(effect.split('_')[1], 10);
     } else {
-      // Other effects handling
       return res.status(400).json({ message: 'Unknown item effect.' });
     }
 
-    // Increase the user's crit bonus by the bonus value.
     await pool.query(
       'UPDATE users SET crit_bonus = crit_bonus + $1 WHERE id = $2',
       [bonus, userId]
     );
 
-    // Optionally, mark the item as used (or decrement quantity)
     await pool.query(
       'UPDATE user_items SET quantity = quantity - 1 WHERE user_id = $1 AND item_id = $2',
       [userId, item_id]

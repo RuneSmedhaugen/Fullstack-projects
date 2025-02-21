@@ -79,7 +79,7 @@
         editingHabitId: null,
         errorMessage: "",
         successMessage: "",
-        currentTab: 'uncompleted', // Set default tab
+        currentTab: 'uncompleted',
       };
     },
     mounted() {
@@ -130,8 +130,7 @@
   
       async handleCheckboxChange(habit) {
         if (habit.done) {
-          habit.done = false; // Allow unchecking
-          // Optionally: send request to mark habit as incomplete
+          habit.done = false;
         } else {
           try {
             const response = await axios.post(

@@ -47,14 +47,12 @@
       };
     },
     mounted() {
-      // Check localStorage for dark mode preference
       const savedDarkMode = localStorage.getItem('darkMode') === 'true';
       this.darkMode = savedDarkMode;
       this.applyDarkMode(savedDarkMode);
     },
     methods: {
       toggleDarkMode() {
-        // Save the dark mode preference to localStorage
         localStorage.setItem('darkMode', this.darkMode);
         this.applyDarkMode(this.darkMode);
       },
@@ -77,7 +75,6 @@
             });
             if (response.ok) {
               alert('Your account has been deleted.');
-              // Clear localStorage and redirect to login
               localStorage.clear();
               this.$router.push('/login');
             } else {
@@ -89,7 +86,6 @@
         }
       },
       logout() {
-        // Clear localStorage and redirect to login page
         localStorage.clear();
         this.$router.push('/login');
       },
@@ -98,7 +94,6 @@
   </script>
   
   <style scoped>
-  /* Optional: Styling to enhance dark mode behavior */
   body.bg-dark {
     background-color: #343a40 !important;
   }

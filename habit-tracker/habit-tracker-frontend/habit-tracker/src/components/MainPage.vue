@@ -6,7 +6,7 @@
             <p><em>- {{ author }}</em></p>
         </div>
 
-        <!-- Main Content Section -->
+        <!-- Tabs Section -->
         <div id="mainButtons">
             <h2>QuestLog</h2>
             <button @click="currentTab = 'YourHabits'">Your Habits</button>
@@ -70,14 +70,12 @@ export default {
 </script>
 
 <style scoped>
-/* Main Container */
 #mainDiv {
     text-align: center;
     padding: 20px;
     font-family: Arial, sans-serif;
 }
 
-/* Quote Ticker Style */
 .quote-ticker {
     width: 100%;
     background-color: #333;
@@ -108,14 +106,12 @@ export default {
     }
 }
 
-/* Main Buttons */
 #mainButtons {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
     margin-top: 60px;
-    /* To account for the ticker */
 }
 
 /* Button Styling */
@@ -139,12 +135,10 @@ button:focus {
     outline: none;
 }
 
-/* Tab Content */
 #tabContent {
     margin-top: 20px;
 }
 
-/* Overall Page Style */
 h2 {
     font-size: 32px;
     color: #333;

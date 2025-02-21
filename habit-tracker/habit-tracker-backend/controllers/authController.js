@@ -4,7 +4,7 @@ const pool = require('../models/db');
 
 // Register a new user
 exports.register = async (req, res) => {
-    const { username, password, email } = req.body; // Extract data from the request body
+    const { username, password, email } = req.body;
 
     try {
         // Check if the email is already in use by querying the database
@@ -24,39 +24,32 @@ exports.register = async (req, res) => {
             [username, hashedPassword, salt, email]
         );
 
-        // Return success message along with the new user's ID
         res.status(201).json({ userId: result.rows[0].id, message: 'User registered successfully' });
     } catch (err) {
-        // If there is an error, send a 500 status code and the error message
         res.status(500).json({ error: err.message });
     }
 };
 
 // Login
 exports.login = async (req, res) => {
-    const { username, email, password } = req.body; // Extract data from the request body
+    const { username, email, password } = req.body;
 
     try {
-        // Query the database to find the user either by username or email
         const userQuery = email ? 
             pool.query('SELECT * FROM users WHERE email = $1', [email]) : 
             pool.query('SELECT * FROM users WHERE username = $1', [username]);
 
-        // Wait for the result of the query
         const result = await userQuery;
 
-        // If no user is found, return a 404 error
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Extract the user data from the query result
         const user = result.rows[0];
 
         // Compare the hashed password with the one provided by the user
         const isMatch = await bcrypt.compare(password, user.password_hash);
 
-        // If the passwords don't match, return an error
         if (!isMatch) {
             return res.status(400).json({ message: 'Wrong password, try again' });
         }
@@ -67,7 +60,6 @@ exports.login = async (req, res) => {
         // Return the token and a success message
         res.json({ token, message: 'Login successful' });
     } catch (err) {
-        // If there is an error, send a 500 status code and the error message
         res.status(500).json({ error: err.message });
     }
 };

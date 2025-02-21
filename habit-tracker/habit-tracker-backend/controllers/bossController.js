@@ -9,12 +9,12 @@ const createNewBoss = async (userId, level) => {
       const basestrength = 10;
   
       // Calculate boss stats
-      const hp = basehp + (level - 1) * 10; // Max HP and Current HP start the same
+      const hp = basehp + (level - 1) * 10;
       const strength = basestrength + (level - 1) * 10;
       const xpReward = 50 + (level - 1);
       const goldReward = 10 + (level - 1);
   
-      // Insert new boss into the database with current_hp and max_hp
+      // Insert new boss into the database
       const result = await pool.query(
         `INSERT INTO bosses (user_id, level, current_hp, max_hp, strength, xp_reward, gold_reward)
          VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
@@ -47,12 +47,11 @@ exports.getBoss = async (req, res) => {
   }
 };
 
-// Handle the boss attack and update boss and user stats accordingly
+// boss attack and update boss and user stats
 exports.attackBoss = async (req, res) => {
     try {
         const userId = req.user.id;
 
-        // Retrieve the latest boss and the user details
         const bossResult = await pool.query(
             `SELECT * FROM bosses WHERE user_id = $1 ORDER BY id DESC LIMIT 1`,
             [userId]
@@ -66,7 +65,6 @@ exports.attackBoss = async (req, res) => {
             boss = await createNewBoss(userId, 1);  // Create new boss if not found
         }
 
-        // Fetch active lifesteal percentage
         const lifestealPercentage = await getLifestealPercentage(userId);
         
         // User attacks boss
@@ -75,7 +73,7 @@ exports.attackBoss = async (req, res) => {
         const randomValue = Math.random() * 100;
         let actualDamage = baseDamage;
         if (randomValue < critChance) {
-            actualDamage = baseDamage * 2; // Apply a crit multiplier of 2
+            actualDamage = baseDamage * 2;
             turnLog.push(`Critical hit! Damage doubled to ${actualDamage}.`);
         }
         
@@ -89,7 +87,7 @@ exports.attackBoss = async (req, res) => {
             turnLog.push(`Lifesteal restored ${healthRegained} HP. User HP: ${user.current_hp}`);
         }
 
-        // If boss is defeated, award rewards, check level up, and create a new boss
+        // If boss is defeated, check level up, and create a new boss
         if (boss.current_hp <= 0) {
             await pool.query(
                 `UPDATE users SET xp = xp + $1, gold = gold + $2 WHERE id = $3`,
@@ -98,7 +96,6 @@ exports.attackBoss = async (req, res) => {
 
             await pool.query('UPDATE users SET crit_bonus = 0 WHERE id = $1', [userId]);
             
-            // Clear lifesteal effect on boss defeat
             await clearLifestealEffect(userId);
 
             // Check for level up after awarding XP

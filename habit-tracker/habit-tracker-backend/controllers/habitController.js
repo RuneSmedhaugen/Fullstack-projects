@@ -3,23 +3,23 @@ const { checkLevelUp } = require('./userController');
 
 // Handler to get all habits of a user
 const getHabits = async (req, res) => {
-  const userId = req.user.id; // Get user ID from the request
+  const userId = req.user.id; 
   try {
     // Query the database to get all habits for the user
     const result = await pool.query(
       'SELECT * FROM habits WHERE user_id = $1 ORDER BY id ASC',
       [userId]
     );
-    res.json(result.rows); // Send the result as JSON
+    res.json(result.rows); 
   } catch (err) {
-    console.error('Error getting habits:', err); // Log the error
-    res.status(500).json({ message: 'Server error retrieving habits.' }); // Send server error response
+    console.error('Error getting habits:', err);
+    res.status(500).json({ message: 'Server error retrieving habits.' });
   }
 };
 
-// Handler to add a new habit
+// add a new habit
 const addHabit = async (req, res) => {
-  const userId = req.user.id; // Get user ID from the request
+  const userId = req.user.id;
   const {
     name,
     description,
@@ -27,7 +27,7 @@ const addHabit = async (req, res) => {
     time_perspective,
     xp_reward,
     gold_reward,
-  } = req.body; // Destructure the habit details from the request body
+  } = req.body;
 
   try {
     // Insert a new habit into the database
@@ -36,30 +36,30 @@ const addHabit = async (req, res) => {
         (user_id, name, description, purpose, streak_current, streak_longest, time_perspective, xp_reward, gold_reward)
       VALUES
         ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      RETURNING *`, // Returning the inserted habit data
+      RETURNING *`,
       [
         userId,
         name,
-        description || '', // Default empty string if not provided
-        purpose || '', // Default empty string if not provided
-        0, // Initial streak values
+        description || '',
+        purpose || '',
+        0,
         0,
         time_perspective || 'daily', // Default to 'daily' if not provided
-        xp_reward || 10, // Default XP reward if not provided
-        gold_reward || 100 // Default gold reward if not provided
+        xp_reward || 10,
+        gold_reward || 100
       ]
     );
-    res.status(201).json(result.rows[0]); // Return the newly created habit
+    res.status(201).json(result.rows[0]); 
   } catch (error) {
-    console.error('Error adding habit:', error); // Log the error
-    res.status(500).json({ message: 'Server error creating habit.' }); // Send server error response
+    console.error('Error adding habit:', error); 
+    res.status(500).json({ message: 'Server error creating habit.' });
   }
 };
 
-// Handler to update an existing habit
+// update an existing habit
 const updateHabit = async (req, res) => {
-  const userId = req.user.id; // Get user ID from the request
-  const habitId = req.params.id; // Get habit ID from the request parameters
+  const userId = req.user.id; 
+  const habitId = req.params.id;
   const {
     name,
     description,
@@ -69,7 +69,7 @@ const updateHabit = async (req, res) => {
     streak_longest,
     xp_reward,
     gold_reward
-  } = req.body; // Destructure updated habit details from the request body
+  } = req.body;
 
   try {
     // Update the habit in the database
@@ -84,7 +84,7 @@ const updateHabit = async (req, res) => {
            xp_reward = $7,
            gold_reward = $8
        WHERE id = $9 AND user_id = $10
-       RETURNING *`, // Returning the updated habit data
+       RETURNING *`,
       [
         name,
         description,
@@ -104,17 +104,17 @@ const updateHabit = async (req, res) => {
       return res.status(404).json({ message: 'Habit not found or not authorized' });
     }
 
-    res.json(result.rows[0]); // Return the updated habit
+    res.json(result.rows[0]); 
   } catch (error) {
-    console.error('Error updating habit:', error); // Log the error
-    res.status(500).json({ message: 'Server error updating habit.' }); // Send server error response
+    console.error('Error updating habit:', error);
+    res.status(500).json({ message: 'Server error updating habit.' });
   }
 };
 
-// Handler to delete an existing habit
+// delete an existing habit
 const deleteHabit = async (req, res) => {
-  const userId = req.user.id; // Get user ID from the request
-  const habitId = req.params.id; // Get habit ID from the request parameters
+  const userId = req.user.id; 
+  const habitId = req.params.id;
 
   try {
     // Delete the habit from the database
@@ -128,17 +128,17 @@ const deleteHabit = async (req, res) => {
       return res.status(404).json({ message: 'Habit not found or not authorized' });
     }
 
-    res.json({ message: 'Habit deleted successfully', habit: result.rows[0] }); // Return success message
+    res.json({ message: 'Habit deleted successfully', habit: result.rows[0] }); 
   } catch (error) {
-    console.error('Error deleting habit:', error); // Log the error
-    res.status(500).json({ message: 'Server error deleting habit.' }); // Send server error response
+    console.error('Error deleting habit:', error);
+    res.status(500).json({ message: 'Server error deleting habit.' });
   }
 };
 
-// Handler to mark a habit as done
+// mark a habit as done
 const markHabitDone = async (req, res) => {
-  const { habitId } = req.params; // Get habit ID from the request parameters
-  const userId = req.user.id; // Get user ID from the request
+  const { habitId } = req.params;
+  const userId = req.user.id;
 
   try {
     // Fetch the habit to get its xp_reward and gold_reward
@@ -147,7 +147,6 @@ const markHabitDone = async (req, res) => {
       [habitId, userId]
     );
 
-    // If habit not found, return an error
     if (habitResult.rowCount === 0) {
       return res.status(404).json({ message: 'Habit not found or not authorized' });
     }
@@ -177,22 +176,22 @@ const markHabitDone = async (req, res) => {
       gold_reward: habit.gold_reward
     });
   } catch (error) {
-    console.error("Error marking habit as done:", error); // Log the error
-    res.status(500).json({ message: "Error marking habit as done" }); // Send server error response
+    console.error("Error marking habit as done:", error);
+    res.status(500).json({ message: "Error marking habit as done" });
   }
 };
 
-// Handler to fetch statistics about habits and completions
+// fetch statistics about habits and completions
 const getStats = async (req, res) => {
-  const userId = req.user.id; // Get user ID from the request
+  const userId = req.user.id;
   try {
-    // Query to count the total habits for the user
+    // count the total habits for the user
     const totalHabitsResult = await pool.query(
       'SELECT COUNT(*) FROM habits WHERE user_id = $1',
       [userId]
     );
 
-    // Query to count the total completions for the user
+    // count the total completions for the user
     const totalCompletionsResult = await pool.query(
       `SELECT COUNT(*) FROM habit_completions hc 
        JOIN habits h ON hc.habit_id = h.id 
@@ -200,7 +199,7 @@ const getStats = async (req, res) => {
       [userId]
     );
 
-    // Query to get the longest streak of habit completions
+    // get the longest streak of habit completions
     const longestStreakResult = await pool.query(
       `WITH streaks AS (
          SELECT done_at::date AS completion_date, 
@@ -225,18 +224,18 @@ const getStats = async (req, res) => {
       longestStreak: longestStreakResult.rows[0]?.longest_streak || 0,
     };
 
-    res.json(stats); // Return the statistics
+    res.json(stats);
   } catch (error) {
-    console.error('Error fetching stats:', error); // Log the error
-    res.status(500).json({ message: 'Server error fetching stats.' }); // Send server error response
+    console.error('Error fetching stats:', error); 
+    res.status(500).json({ message: 'Server error fetching stats.' });
   }
 };
 
 // Handler to fetch completion data for the last 7 days
 const getCompletionData = async (req, res) => {
-  const userId = req.user.id; // Get user ID from the request
+  const userId = req.user.id;
   try {
-    // Query to fetch daily completions for the last 7 days
+    // fetch daily completions for the last 7 days
     const dailyCompletions = await pool.query(
       `SELECT done_at::date AS date, COUNT(*) AS completions 
        FROM habit_completions hc 
@@ -248,18 +247,18 @@ const getCompletionData = async (req, res) => {
       [userId]
     );
 
-    // Query to count the total habits for the user
+    // count the total habits for the user
     const totalHabitsResult = await pool.query(
       'SELECT COUNT(*) FROM habits WHERE user_id = $1',
       [userId]
     );
 
     const data = {
-      dailyCompletions: dailyCompletions.rows, // Store daily completions
-      totalHabits: parseInt(totalHabitsResult.rows[0].count, 10), // Store total habits count
+      dailyCompletions: dailyCompletions.rows,
+      totalHabits: parseInt(totalHabitsResult.rows[0].count, 10),
     };
 
-    // Query to count the total habit completions for the user
+    // count the total habit completions for the user
     const totalCompletionsResult = await pool.query(
       `SELECT COUNT(*) AS total_completions 
        FROM habit_completions hc 
@@ -275,14 +274,13 @@ const getCompletionData = async (req, res) => {
 
     data.missedCompletions = missedCompletions > 0 ? missedCompletions : 0;
 
-    res.json(data); // Return the completion data
+    res.json(data); 
   } catch (error) {
-    console.error('Error fetching completion data:', error); // Log the error
-    res.status(500).json({ message: 'Server error fetching completion data.' }); // Send server error response
+    console.error('Error fetching completion data:', error); 
+    res.status(500).json({ message: 'Server error fetching completion data.' });
   }
 };
 
-// Export the handlers for use in routes
 module.exports = {
   getHabits,
   addHabit,
