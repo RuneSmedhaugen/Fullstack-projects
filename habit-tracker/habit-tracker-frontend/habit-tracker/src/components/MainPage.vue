@@ -1,10 +1,35 @@
 <template>
     <div id="mainDiv">
+        <!-- Notification Bell -->
+        <div id="notificationBell" @click="openNotifications">
+            <span v-if="unreadCount > 0" class="notification-dot"></span>
+            🔔
+        </div>
+
+        <!-- Notification Modal -->
+        <div v-if="showNotifications" class="modal-overlay" @click="closeNotifications">
+            <div class="modal" @click.stop>
+                <h3>Notifications</h3>
+                <ul>
+                    <li v-for="(notification, index) in notifications" :key="index">
+                        {{ notification }}
+                    </li>
+                </ul>
+                <button @click="closeNotifications">Close</button>
+            </div>
+        </div>
+
         <!-- Inspirational Quote Ticker -->
         <div id="quoteTicker" class="quote-ticker">
-            <p>{{ quote }}</p>
-            <p><em>- {{ author }}</em></p>
-        </div>
+    <div class="scrolling-text">
+        <p>{{ quote }}</p>
+        <p><em>- {{ author }}</em></p>
+    </div>
+    <div class="scrolling-text">
+        <p>{{ quote }}</p>
+        <p><em>- {{ author }}</em></p>
+    </div>
+</div>
 
         <!-- Tabs Section -->
         <div id="mainButtons">
@@ -41,6 +66,8 @@ export default {
             currentTab: 'YourHabits',
             quote: '',
             author: '',
+            notifications: ['New quest available!', 'Your daily streak is active!'],
+            showNotifications: false,
         };
     },
     computed: {
@@ -55,6 +82,9 @@ export default {
                 YourHabits,
             }[this.currentTab];
         },
+        unreadCount() {
+            return this.notifications.length;
+        }
     },
     mounted() {
         this.fetchQuote();
@@ -64,12 +94,57 @@ export default {
             const randomIndex = Math.floor(Math.random() * quotes.length);
             this.quote = quotes[randomIndex].quote;
             this.author = quotes[randomIndex].author;
+        },
+        openNotifications() {
+            this.showNotifications = true;
+            this.notifications = [];
+        },
+        closeNotifications() {
+            this.showNotifications = false;
         }
     }
 };
 </script>
 
 <style scoped>
+#notificationBell {
+    position: fixed;
+    top: 50px;
+    right: 600px;
+    font-size: 24px;
+    cursor: pointer;
+    position: relative;
+}
+
+.notification-dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: red;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
 #mainDiv {
     text-align: center;
     padding: 20px;
@@ -77,16 +152,24 @@ export default {
 }
 
 .quote-ticker {
-    width: 100%;
+    display: flex;
+    overflow: hidden;
+    white-space: nowrap;
+    position: fixed;
+    top: 0;
     background-color: #333;
     color: white;
     font-size: 16px;
     font-weight: bold;
-    padding: 5px 0;
-    position: fixed;
-    top: 0;
-    left: 0;
-    overflow: hidden;
+    padding: 1px 0;
+    justify-content: center;
+
+}
+
+.scrolling-text {
+    display: inline-block;
+    padding-left: 100%;
+    animation: scroll-left 15s linear infinite;
 }
 
 .quote-ticker p {
@@ -98,7 +181,7 @@ export default {
 
 @keyframes scroll-left {
     0% {
-        transform: translateX(100%);
+        transform: translateX(100);
     }
 
     100% {
