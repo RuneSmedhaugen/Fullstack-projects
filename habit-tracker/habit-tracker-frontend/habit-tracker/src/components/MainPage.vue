@@ -21,15 +21,11 @@
 
         <!-- Inspirational Quote Ticker -->
         <div id="quoteTicker" class="quote-ticker">
-    <div class="scrolling-text">
-        <p>{{ quote }}</p>
-        <p><em>- {{ author }}</em></p>
-    </div>
-    <div class="scrolling-text">
-        <p>{{ quote }}</p>
-        <p><em>- {{ author }}</em></p>
-    </div>
-</div>
+            <div class="scrolling-text" @animationend="fetchQuote">
+                <p>{{ quote }}</p>
+                <p><em>- {{ author }}</em></p>
+            </div>
+        </div>
 
         <!-- Tabs Section -->
         <div id="mainButtons">
@@ -68,6 +64,7 @@ export default {
             author: '',
             notifications: ['New quest available!', 'Your daily streak is active!'],
             showNotifications: false,
+            quoteInterval: null, // Add a variable to store the interval ID
         };
     },
     computed: {
@@ -88,6 +85,10 @@ export default {
     },
     mounted() {
         this.fetchQuote();
+        this.quoteInterval = setInterval(this.fetchQuote, 15000);
+    },
+    beforeUnmount() {
+        clearInterval(this.quoteInterval);
     },
     methods: {
         fetchQuote() {
@@ -105,6 +106,7 @@ export default {
     }
 };
 </script>
+
 
 <style scoped>
 #notificationBell {
@@ -156,36 +158,33 @@ export default {
     overflow: hidden;
     white-space: nowrap;
     position: fixed;
+    width: 100%;
     top: 0;
+    left: 0;
     background-color: #333;
     color: white;
     font-size: 16px;
     font-weight: bold;
     padding: 1px 0;
-    justify-content: center;
-
 }
 
 .scrolling-text {
     display: inline-block;
-    padding-left: 100%;
-    animation: scroll-left 15s linear infinite;
+    animation: scroll-left 15s linear infinite; /* Adjust duration as needed */
 }
 
 .quote-ticker p {
     white-space: nowrap;
-    animation: scroll-left 15s linear infinite;
     margin: 0;
-    padding-left: 100%;
 }
 
 @keyframes scroll-left {
     0% {
-        transform: translateX(100);
+        transform: translateX(450%); /* Start off-screen to the right */
     }
 
     100% {
-        transform: translateX(-100%);
+        transform: translateX(-100%); /* End off-screen to the left */
     }
 }
 
