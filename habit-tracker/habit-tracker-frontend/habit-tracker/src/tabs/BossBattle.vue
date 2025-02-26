@@ -54,8 +54,8 @@
                         <h4>Your Stats</h4>
                         <p><strong>Level:</strong> {{ user.level }}</p>
                         <p><strong>Strength:</strong> {{ user.strength }}</p>
-                        <p><strong>Crit %:</strong> {{ user.crit_bonus || 0 }}%</p>
-                        <p><strong>Lifesteal %:</strong> {{ user.lifesteal || 0 }}%</p>
+                        <p><strong>Crit :</strong> {{ user.crit_bonus || 0 }}%</p>
+                        <p><strong>Lifesteal :</strong> {{ user.lifesteal || 0 }}%</p>
                         <div>
                             <label><strong>Health:</strong> {{ user.current_hp }} / {{ user.max_hp }}</label>
                             <div class="progress">

@@ -94,13 +94,14 @@
     },
     methods: {
       async fetchHabits() {
+        console.log('fetching habits...');
         const token = localStorage.getItem("token");
         if (!token) {
           this.errorMessage = "No token found. Please log in again.";
           return;
         }
         try {
-          const habitsResponse = await axios.get("http://localhost:5000/api/habits", {
+          const habitsResponse = await axios.get("http://localhost:5000/api/habits/habits", {
             headers: { Authorization: `Bearer ${token}` },
           });
   
@@ -116,15 +117,15 @@
           const completionsResponse = await axios.get("http://localhost:5000/api/habits/completions", {
             headers: { Authorization: `Bearer ${token}` },
           });
-          const completions = completionsResponse.data;
-  
+          const completions = completionsResponse.data.dailyCompletions;
+          console.log("Completions Response:", completions);
           this.habits.forEach((habit) => {
             if (completions.find((c) => c.habit_id === habit.id)) {
               habit.done = true;
             }
           });
         } catch (error) {
-          this.errorMessage = error.response?.data?.message || "Error fetching habits.";
+          this.errorMessage = error.response?.data?.message || error.message || "Error fetching habits.";
         }
       },
   
