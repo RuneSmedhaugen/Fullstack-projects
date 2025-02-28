@@ -2,7 +2,7 @@
     <div class="shop-container">
       <h2 class="shop-title">Item Shop</h2>
       <div class="gold-display">
-        🪙 Your Gold: <span class="gold-amount">{{ gold }}</span>
+        💰 Your Gold: <span class="gold-amount">{{ gold }}</span>
       </div>
       
       <!-- Loading Spinner -->

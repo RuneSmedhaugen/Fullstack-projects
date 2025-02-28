@@ -13,6 +13,7 @@ const userRoutes = require('./routes/userRoutes');
 const itemRoutes = require('./routes/itemRoutes');
 const userItemsRoutes = require('./routes/userItemsRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const friendsRoutes = require('./routes/FriendsRoutes');
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/useritems', userItemsRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/friends', friendsRoutes);
 
 // Create HTTP server and attach Socket.IO
 const server = http.createServer(app);

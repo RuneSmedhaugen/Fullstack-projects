@@ -3,14 +3,12 @@ const router = express.Router();
 const {
     sendFriendRequest,
     respondToFriendRequest,
-    getUserNotifications,
-    markNotificationAsSeen
+    getFriendRequests
 } = require('../controllers/notificationsController');
-const authenticate = require('../middleware/authMiddleware'); // Assuming you have authentication middleware
 
-router.post('/friend-request', authenticate, sendFriendRequest);
-router.post('/respond', authenticate, respondToFriendRequest);
-router.get('/', authenticate, getUserNotifications);
-router.post('/mark-seen', authenticate, markNotificationAsSeen);
+const authMiddleware = require('../middleware/authMiddleware');
 
+router.post('/sendFriendRequest', authMiddleware , sendFriendRequest);
+router.post('/respond', authMiddleware, respondToFriendRequest);
+router.get('/friend-requests', authMiddleware, getFriendRequests)
 module.exports = router;

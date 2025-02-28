@@ -9,6 +9,7 @@ exports.sendFriendRequest = async (req, res) => {
         if (sender_id === receiver_id) {
             return res.status(400).json({ message: "You can't send a request to yourself." });
         }
+        console.log(`Friend request sent from ${sender_id} to ${receiver_id}`);
 
         // Check if a request already exists
         const existingRequest = await pool.query(
@@ -76,48 +77,19 @@ exports.respondToFriendRequest = async (req, res) => {
     }
 };
 
-// Fetch notifications for the logged-in user
-exports.getUserNotifications = async (req, res) => {
+// Fetch friend requests for the logged-in user
+exports.getFriendRequests = async (req, res) => {
     try {
         const user_id = req.user.id; // Get logged-in user ID
 
-        const notifications = await pool.query(
-            "SELECT * FROM notifications WHERE receiver_id = $1 ORDER BY created_at DESC",
+        const requests = await pool.query(
+            "SELECT * FROM notifications WHERE receiver_id = $1 AND type = 'friend_request' AND status = 'pending' ORDER BY created_at DESC",
             [user_id]
         );
 
-        res.status(200).json(notifications.rows);
+        res.status(200).json(requests.rows);
     } catch (error) {
-        console.error("Error fetching notifications:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-};
-
-// Mark notification as seen
-exports.markNotificationAsSeen = async (req, res) => {
-    try {
-        const { notification_id } = req.body;
-        const user_id = req.user.id;
-
-        // Ensure the notification belongs to the user
-        const notification = await pool.query(
-            "SELECT * FROM notifications WHERE id = $1 AND receiver_id = $2",
-            [notification_id, user_id]
-        );
-
-        if (notification.rows.length === 0) {
-            return res.status(404).json({ message: "Notification not found." });
-        }
-
-        // Update the notification status to 'seen'
-        await pool.query(
-            "UPDATE notifications SET status = 'seen' WHERE id = $1",
-            [notification_id]
-        );
-
-        res.status(200).json({ message: "Notification marked as seen." });
-    } catch (error) {
-        console.error("Error marking notification as seen:", error);
+        console.error("Error fetching friend requests:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };

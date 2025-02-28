@@ -3,7 +3,7 @@ const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const {
   getHabits,
-  addHabit,           // Default add endpoint (if needed)
+  addHabit,           
   updateHabit,
   deleteHabit,
   markHabitDone,

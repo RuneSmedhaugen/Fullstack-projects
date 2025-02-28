@@ -1,7 +1,7 @@
 <template>
     <div id="mainDiv">
         <!-- Notification Bell -->
-        <div id="notificationBell" @click="openNotifications">
+        <div id="notificationBell" :class="{ 'has-unread': unreadCount > 0 }" @click="openNotifications">
             <span v-if="unreadCount > 0" class="notification-dot"></span>
             🔔
         </div>
@@ -9,11 +9,12 @@
         <!-- Notification Modal -->
         <div v-if="showNotifications" class="modal-overlay" @click="closeNotifications">
             <div class="modal" @click.stop>
-                <h3>Notifications</h3>
+                <h3>Notifications gheherthrht</h3>
                 <ul>
                     <li v-for="(notification, index) in notifications" :key="index">
-                        {{ notification }}
-                    </li>
+    <strong>{{ notification.sender_id }}</strong>: {{ notification.type }} - {{ notification.status }} ({{ notification.created_at }})
+</li>
+
                 </ul>
                 <button @click="closeNotifications">Close</button>
             </div>
@@ -21,7 +22,7 @@
 
         <!-- Inspirational Quote Ticker -->
         <div id="quoteTicker" class="quote-ticker">
-            <div class="scrolling-text" @animationend="fetchQuote">
+            <div class="scrolling-text" @animationiteration="fetchQuote">
                 <p>{{ quote }}</p>
                 <p><em>- {{ author }}</em></p>
             </div>
@@ -35,8 +36,10 @@
             <button @click="currentTab = 'ItemShop'">Item Shop</button>
             <button @click="currentTab = 'BossBattle'">Boss Battle</button>
             <button @click="currentTab = 'UserStats'">Stats</button>
+            <button @click="currentTab = 'UsersTab'">Users</button>
             <button @click="currentTab = 'UserProfile'">Profile</button>
             <button @click="currentTab = 'UserSettings'">Settings</button>
+            
         </div>
 
         <div id="tabContent">
@@ -53,6 +56,7 @@ import UserProfile from '../tabs/UserProfile.vue';
 import UserSettings from '../tabs/UserSettings.vue';
 import UserStats from '../tabs/UserStats.vue';
 import YourHabits from '../tabs/YourHabits.vue';
+import UsersTab from '../tabs/UsersTab.vue';
 import quotes from '@/quotes';
 
 export default {
@@ -62,9 +66,9 @@ export default {
             currentTab: 'YourHabits',
             quote: '',
             author: '',
-            notifications: ['New quest available!', 'Your daily streak is active!'],
+            notifications: [],
             showNotifications: false,
-            quoteInterval: null, // Add a variable to store the interval ID
+            quoteInterval: null,
         };
     },
     computed: {
@@ -77,15 +81,17 @@ export default {
                 UserSettings,
                 UserStats,
                 YourHabits,
+                UsersTab, 
             }[this.currentTab];
         },
         unreadCount() {
-            return this.notifications.length;
+            return this.notifications.filter(notification => !notification.read).length;
         }
     },
     mounted() {
         this.fetchQuote();
         this.quoteInterval = setInterval(this.fetchQuote, 15000);
+        this.fetchNotifications();
     },
     beforeUnmount() {
         clearInterval(this.quoteInterval);
@@ -96,9 +102,34 @@ export default {
             this.quote = quotes[randomIndex].quote;
             this.author = quotes[randomIndex].author;
         },
+        async fetchNotifications() {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:5000/api/notifications', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`, 
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Fetched notifications:', data);
+        this.notifications = data.map(notification => ({ ...notification, read: false })); // Add read status
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+    }
+    
+},
+
         openNotifications() {
             this.showNotifications = true;
-            this.notifications = [];
+            // Mark notifications as read when opened
+            this.notifications.forEach(notification => notification.read = true);
         },
         closeNotifications() {
             this.showNotifications = false;
@@ -106,7 +137,6 @@ export default {
     }
 };
 </script>
-
 
 <style scoped>
 #notificationBell {
@@ -116,16 +146,24 @@ export default {
     font-size: 24px;
     cursor: pointer;
     position: relative;
+    display: inline-block;
 }
 
 .notification-dot {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: -5px;
+    right: -5px;
     background: red;
     width: 10px;
     height: 10px;
     border-radius: 50%;
+    border: 2px solid white;
+    display: none;
+}
+
+/* Show dot only if unread notifications exist */
+#notificationBell.has-unread .notification-dot {
+    display: block;
 }
 
 .modal-overlay {
@@ -141,7 +179,7 @@ export default {
 }
 
 .modal {
-    background: white;
+    background: rgb(255, 255, 255);
     padding: 20px;
     border-radius: 8px;
     text-align: center;
@@ -170,7 +208,7 @@ export default {
 
 .scrolling-text {
     display: inline-block;
-    animation: scroll-left 15s linear infinite; /* Adjust duration as needed */
+    animation: scroll-left 15s linear infinite;
 }
 
 .quote-ticker p {
@@ -179,13 +217,8 @@ export default {
 }
 
 @keyframes scroll-left {
-    0% {
-        transform: translateX(450%); /* Start off-screen to the right */
-    }
-
-    100% {
-        transform: translateX(-100%); /* End off-screen to the left */
-    }
+    0% { transform: translateX(450%); }
+    100% { transform: translateX(-100%); }
 }
 
 #mainButtons {
