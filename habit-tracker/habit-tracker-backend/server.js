@@ -47,7 +47,6 @@ const io = socketIo(server, {
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
 
-  // Example: join a room by user id (for targeted notifications)
   socket.on('join', (userId) => {
     console.log(`Socket ${socket.id} joining room: user_${userId}`);
     socket.join(`user_${userId}`);
@@ -64,5 +63,5 @@ server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
 
-// Export the io instance if you need it in other modules (like controllers)
+
 module.exports.io = io;

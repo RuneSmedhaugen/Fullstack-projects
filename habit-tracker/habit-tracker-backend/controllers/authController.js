@@ -9,7 +9,7 @@ exports.register = async (req, res) => {
     try {
         // Check if the email is already in use by querying the database
         const emailCheck = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (emailCheck.rows.length > 0) { // If email exists, return error
+        if (emailCheck.rows.length > 0) {
             return res.status(400).json({ message: 'Email already in use' });
         }
 

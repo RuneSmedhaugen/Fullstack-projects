@@ -6,11 +6,9 @@
         <div v-if="isLoading" class="text-center">
             <p>Loading boss data...</p>
         </div>
-
+        
         <div v-else>
-            <!-- Flex container for boss stats, player area, and user stats -->
             <div class="d-flex align-items-center justify-content-between stats-flex mb-4">
-                <!-- Boss Stats Card on the Left -->
                 <div class="boss-stats">
                     <div class="card p-3">
                         <h4>Boss Stats</h4>
@@ -26,29 +24,25 @@
                     </div>
                 </div>
 
-                <!-- Shared Player Area with Background and Images in the Center -->
+                <!-- Shared Player Area with Attack Animations -->
                 <div class="shared-container">
                     <div class="shared-background p-4">
-                        <!-- Boss Image Wrapper -->
-                        <div class="boss-image-wrapper" v-if="boss">
-                            <img v-if="getBossImage()" :src="getBossImage()" alt="Boss" class="img-fluid boss-image"
-                                :class="{ 'animate-damage': bossDamaged, 'animate-attack': bossAttacking }" />
-                            <div v-if="floatingBossDamage" class="floating-damage boss-damage">
-                                -{{ floatingBossDamage }}
-                            </div>
+                        <div v-if="floatingBossDamage" :class="['floating-damage', 'boss-damage', { 'critical': isBossCrit }]">
+                            -{{ floatingBossDamage }}
                         </div>
-                        <!-- User Avatar Image Wrapper -->
-                        <div class="avatar-image-wrapper" v-if="user">
+                        <div class="boss-image-wrapper" :class="{ 'animate-attack': bossAttacking }">
+                            <img v-if="getBossImage()" :src="getBossImage()" alt="Boss" class="img-fluid boss-image" />
+                        </div>
+
+                        <div v-if="floatingUserDamage" :class="['floating-damage', 'user-damage', { 'critical': isUserCrit }]">
+                            -{{ floatingUserDamage }}
+                        </div>
+                        <div class="avatar-image-wrapper" :class="{ 'animate-attack': userAttacking }">
                             <img src="@/img/avatar.png" alt="User Avatar" class="img-fluid avatar-image" />
-                            <div v-if="floatingUserDamage" class="floating-damage user-damage">
-                                -{{ floatingUserDamage }}
-                            </div>
                         </div>
                     </div>
                 </div>
 
-
-                <!-- User Stats Card on the Right -->
                 <div class="user-stats">
                     <div class="card p-3">
                         <h4>Your Stats</h4>
@@ -75,7 +69,6 @@
                 <button v-if="gameOver" class="btn btn-warning mr-2" @click="restartBattle">
                     Restart Battle
                 </button>
-                <!-- Inventory button opens the modal -->
                 <button class="btn btn-secondary" @click="toggleInventory">
                     <img src="@/img/sekk.png" alt="Inventory" class="inventory-icon" />
                 </button>
@@ -137,6 +130,7 @@
     </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 export default {
@@ -162,6 +156,7 @@ export default {
             displayedBattleLog: [],
             floatingBossDamage: null,
             floatingUserDamage: null,
+            userAttacking: false,
         };
     },
     computed: {
@@ -177,6 +172,23 @@ export default {
         this.fetchUser();
     },
     methods: {
+
+        async defeatCharacter(character) {
+  const characterImage = character.querySelector("img");
+
+  // Add the "falling" animation class
+  characterImage.classList.add("falling");
+
+  // Optionally, you can disable further interactions during the fall
+  characterImage.style.pointerEvents = 'none'; 
+
+  // Optional: Reset the animation after it finishes so it can be triggered again
+  setTimeout(() => {
+    characterImage.classList.remove("falling");
+    characterImage.style.pointerEvents = 'auto';
+  }, 1000);  // Match the animation duration here (in milliseconds)
+},
+
         async fetchUser() {
             try {
                 const response = await axios.get('http://localhost:5000/api/users/profile', {
@@ -208,63 +220,78 @@ export default {
         getItemImage(item) {
             return item.image_path;
         },
+
         async fightTurn() {
-            this.fightDisabled = true;
-            this.message = 'The battle is ongoing...';
-            this.battleLog = [];
-            this.displayedBattleLog = [];
-            const oldBossHP = this.boss.current_hp;
-            const oldUserHP = this.user.current_hp;
-            try {
-                const response = await axios.post(
-                    'http://localhost:5000/api/bosses/attack',
-                    {},
-                    { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-                );
+    this.fightDisabled = true;
+    this.message = 'The battle is ongoing...';
+    this.battleLog = [];
+    this.displayedBattleLog = [];
+    const oldBossHP = this.boss.current_hp;
+    const oldUserHP = this.user.current_hp;
 
-                this.battleLog = response.data.log || [];
+    try {
+        const response = await axios.post(
+            'http://localhost:5000/api/bosses/attack',
+            {},
+            { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        );
 
-                await this.animateBattleLog();
+        this.battleLog = response.data.log || [];
+        await this.animateBattleLog();
 
-                this.message = response.data.message;
+        this.message = response.data.message;
 
-                
-                this.floatingBossDamage = this.user.strength; 
-                this.floatingUserDamage = this.boss.strength;   
-                
-                setTimeout(() => {
-                    this.floatingBossDamage = null;
-                    this.floatingUserDamage = null;
-                }, 1500);
+        // Randomize critical hits for both boss and user
+        this.isUserCrit = Math.random() < (this.user.crit_bonus / 100);
+        this.isBossCrit = Math.random() < 0.1; // Example critical chance for the boss
 
-                if (response.data.xpGained !== undefined) {
-                    const newXp = this.user.xp + response.data.xpGained;
-                    const newLevel = Math.floor(newXp / 100);
-                    this.user.xp = newXp;
-                    this.user.level = newLevel;
-                }
-                if (response.data.user) {
-                    await this.animateHPChange(oldUserHP, response.data.user.current_hp, (val) => {
-                        this.user.current_hp = val;
-                    });
-                    this.user.current_hp = response.data.user.current_hp;
-                }
-                if (response.data.boss) {
-                    await this.animateHPChange(oldBossHP, response.data.boss.current_hp, (val) => {
-                        this.boss.current_hp = val;
-                    });
-                    this.boss.current_hp = response.data.boss.current_hp;
-                }
-                if (this.message.includes('defeated')) {
-                    this.gameOver = true;
-                }
-            } catch (error) {
-                console.error('Error during fight turn:', error);
-                this.message = 'Error during fight.';
-            } finally {
-                this.fightDisabled = false;
-            }
-        },
+        // Set damage based on critical hit
+        this.floatingUserDamage = this.isUserCrit ? this.user.strength * 2 : this.user.strength;
+        this.floatingBossDamage = this.isBossCrit ? this.boss.strength * 2 : this.boss.strength;
+
+        // Trigger attack animations
+        this.bossAttacking = true;
+        this.userAttacking = true;
+
+        setTimeout(() => {
+            this.bossAttacking = false;
+            this.userAttacking = false;
+        }, 500); // Duration of the attack animation
+
+        setTimeout(() => {
+            this.floatingBossDamage = null;
+            this.floatingUserDamage = null;
+        }, 1500);
+
+        if (response.data.xpGained !== undefined) {
+            const newXp = this.user.xp + response.data.xpGained;
+            const newLevel = Math.floor(newXp / 100);
+            this.user.xp = newXp;
+            this.user.level = newLevel;
+        }
+        if (response.data.user) {
+            await this.animateHPChange(oldUserHP, response.data.user.current_hp, (val) => {
+                this.user.current_hp = val;
+            });
+            this.user.current_hp = response.data.user.current_hp;
+        }
+        if (response.data.boss) {
+            await this.animateHPChange(oldBossHP, response.data.boss.current_hp, (val) => {
+                this.boss.current_hp = val;
+            });
+            this.boss.current_hp = response.data.boss.current_hp;
+        }
+        if (this.message.includes('defeated')) {
+            this.gameOver = true;
+        }
+    } catch (error) {
+        console.error('Error during fight turn:', error);
+        this.message = 'Error during fight.';
+    } finally {
+        this.fightDisabled = false;
+    }
+},
+
         async animateBattleLog() {
             this.displayedBattleLog = [];
             for (let entry of this.battleLog) {
@@ -272,6 +299,7 @@ export default {
                 await this.sleep(1000);
             }
         },
+
         animateHPChange(oldHP, newHP, setter) {
             return new Promise((resolve) => {
                 const steps = 20;
@@ -289,9 +317,10 @@ export default {
                 }, delay);
             });
         },
-        sleep(ms) {
-            return new Promise((resolve) => setTimeout(resolve, ms));
-        },
+
+       sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+},
         toggleInventory() {
             this.showInventoryModal = !this.showInventoryModal;
             if (this.showInventoryModal) {
@@ -330,6 +359,7 @@ export default {
                 this.message = '';
             }, 3000);
         },
+        
         restartBattle() {
             this.fetchBoss();
             this.fetchUser().then(() => {
@@ -341,6 +371,8 @@ export default {
                 this.displayedBattleLog = [];
             });
         },
+
+        
     },
 };
 </script>
@@ -368,6 +400,82 @@ export default {
     bottom: 23%;
     right: 35%;
 }
+
+/* Floating Damage Number Styles */
+.floating-damage {
+  position: absolute;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: red;
+  animation: float-damage 1s ease-out;
+}
+
+.floating-damage.critical {
+  color: #ff0000;
+  font-size: 2rem;
+  text-shadow: 2px 2px 8px rgba(255, 0, 0, 0.7);
+}
+
+.boss-damage {
+  top: -10px;
+  right: 50px;
+}
+
+.user-damage {
+  top: -10px;
+  left: 50px;
+}
+
+/* Animation for Floating Damage Numbers */
+@keyframes float-damage {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.2);
+  }
+  100% {
+    transform: translateY(-40px) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes fall {
+  0% {
+    transform: rotate(0deg) translateY(0);
+  }
+  100% {
+    transform: rotate(90deg) translateY(50px); /* Adjust the translateY to control how far the image falls */
+  }
+}
+
+.falling {
+  animation: fall 1s forwards;
+}
+
+/* Attack Animation for Boss and User Avatar */
+.animate-attack {
+  animation: attack-shake 0.5s ease-in-out;
+}
+
+@keyframes attack-shake {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(5deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
 
 .shared-background {
     position: relative;
@@ -399,4 +507,6 @@ export default {
 .card {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+
 </style>
