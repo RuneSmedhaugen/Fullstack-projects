@@ -201,7 +201,7 @@ export default {
             }
         },
 
-        // Execute a turn in battle
+        // Execute (order 66) a turn in battle 
         async fightTurn() {
             this.prepareForBattle();
 
@@ -217,14 +217,14 @@ export default {
             }
         },
 
-        // Prepare for battle
+        // Prepare for battle rawr
         prepareForBattle() {
             this.fightDisabled = true;
             this.message = 'The battle is ongoing...';
             this.battleLog.push('The battle has started!');
         },
 
-        // Handle user attack
+        // user attack
         async handleUserAttack() {
             this.userAttacking = true;
             this.boss.current_hp -= this.user.strength;
@@ -237,7 +237,7 @@ export default {
             this.userAttacking = false;
         },
 
-        // Handle boss attack
+        // boss attack
         async handleBossAttack() {
             this.bossAttacking = true;
             this.user.current_hp -= this.boss.strength;
@@ -253,7 +253,7 @@ export default {
         // Update the displayed battle log
         updateBattleLogDisplay() {
             if (this.battleLog.length > 10) {
-                this.displayedBattleLog = this.battleLog.slice(-10); // Show the last 10 log entries
+                this.displayedBattleLog = this.battleLog.slice(-10);
             } else {
                 this.displayedBattleLog = this.battleLog;
             }
@@ -280,11 +280,9 @@ export default {
         restartBattle() {
     this.gameOver = false;
     this.fightDisabled = false;
-    // Explicitly reset user and boss data (if necessary)
     this.boss.current_hp = this.boss.max_hp;
     this.user.current_hp = this.user.max_hp;
 
-    // Fetch updated data
     this.fetchBoss();
     this.fetchUser();
 

@@ -2,13 +2,11 @@ const pool = require('../models/db');
 const { checkLevelUp } = require('./userController');
 const { getLifestealPercentage, clearLifestealEffect } = require('./itemEffects');
 
-// Create a new boss for the user, based on the level
+// Create a new boss for the user based on level
 const createNewBoss = async (userId, level) => {
     try {
       const basehp = 100;
       const basestrength = 10;
-  
-      // Calculate boss stats
       const hp = basehp + (level - 1) * 10;
       const strength = basestrength + (level - 1) * 10;
       const xpReward = 50 + (level - 1);
