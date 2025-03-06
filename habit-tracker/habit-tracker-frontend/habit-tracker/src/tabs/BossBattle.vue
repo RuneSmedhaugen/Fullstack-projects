@@ -133,30 +133,27 @@
 
 <script>
 import axios from 'axios';
+
 export default {
     name: 'BossBattle',
     data() {
         return {
-            boss: {
-                level: 1,
-                current_hp: 100,
-                max_hp: 100,
-                strength: 10,
-            },
+            boss: { level: 1, current_hp: 100, max_hp: 100, strength: 10 },
             user: null,
             inventoryItems: [],
             message: '',
             fightDisabled: false,
             showInventoryModal: false,
-            bossDamaged: false,
-            bossAttacking: false,
             gameOver: false,
             isLoading: true,
             battleLog: [],
             displayedBattleLog: [],
             floatingBossDamage: null,
             floatingUserDamage: null,
+            bossAttacking: false,
             userAttacking: false,
+            isUserCrit: false,
+            isBossCrit: false,
         };
     },
     computed: {
@@ -168,27 +165,17 @@ export default {
         },
     },
     mounted() {
-        this.fetchBoss();
-        this.fetchUser();
+        this.initializeBattle();
     },
     methods: {
+        // Initialize battle
+        async initializeBattle() {
+            this.isLoading = true;
+            await Promise.all([this.fetchBoss(), this.fetchUser()]);
+            this.isLoading = false;
+        },
 
-        async defeatCharacter(character) {
-  const characterImage = character.querySelector("img");
-
-  // Add the "falling" animation class
-  characterImage.classList.add("falling");
-
-  // Optionally, you can disable further interactions during the fall
-  characterImage.style.pointerEvents = 'none'; 
-
-  // Optional: Reset the animation after it finishes so it can be triggered again
-  setTimeout(() => {
-    characterImage.classList.remove("falling");
-    characterImage.style.pointerEvents = 'auto';
-  }, 1000);  // Match the animation duration here (in milliseconds)
-},
-
+        // Fetch user data
         async fetchUser() {
             try {
                 const response = await axios.get('http://localhost:5000/api/users/profile', {
@@ -199,6 +186,8 @@ export default {
                 console.error('Error fetching user:', error);
             }
         },
+
+        // Fetch boss data
         async fetchBoss() {
             try {
                 const response = await axios.get('http://localhost:5000/api/bosses', {
@@ -209,9 +198,105 @@ export default {
                 this.boss = bossData;
             } catch (error) {
                 console.error('Error fetching boss:', error);
-            } finally {
-                this.isLoading = false;
             }
+        },
+
+        // Execute a turn in battle
+        async fightTurn() {
+            this.prepareForBattle();
+
+            try {
+                await this.handleUserAttack();
+                if (this.boss.current_hp > 0) {
+                    await this.handleBossAttack();
+                }
+            } catch (error) {
+                console.error('Error during battle:', error);
+            } finally {
+                this.concludeBattle();
+            }
+        },
+
+        // Prepare for battle
+        prepareForBattle() {
+            this.fightDisabled = true;
+            this.message = 'The battle is ongoing...';
+            this.battleLog.push('The battle has started!');
+        },
+
+        // Handle user attack
+        async handleUserAttack() {
+            this.userAttacking = true;
+            this.boss.current_hp -= this.user.strength;
+            this.floatingBossDamage = this.user.strength;
+            if (this.boss.current_hp <= 0) {
+                this.boss.current_hp = 0;
+            }
+            this.battleLog.push(`You attacked the boss for ${this.user.strength} damage!`);
+            this.updateBattleLogDisplay();
+            this.userAttacking = false;
+        },
+
+        // Handle boss attack
+        async handleBossAttack() {
+            this.bossAttacking = true;
+            this.user.current_hp -= this.boss.strength;
+            this.floatingUserDamage = this.boss.strength;
+            if (this.user.current_hp <= 0) {
+                this.user.current_hp = 0;
+            }
+            this.battleLog.push(`The boss attacked you for ${this.boss.strength} damage!`);
+            this.updateBattleLogDisplay();
+            this.bossAttacking = false;
+        },
+
+        // Update the displayed battle log
+        updateBattleLogDisplay() {
+            if (this.battleLog.length > 10) {
+                this.displayedBattleLog = this.battleLog.slice(-10); // Show the last 10 log entries
+            } else {
+                this.displayedBattleLog = this.battleLog;
+            }
+        },
+
+        // Conclude the battle
+        concludeBattle() {
+            if (this.boss.current_hp <= 0) {
+                this.gameOver = true;
+                this.message = 'You defeated the boss!';
+                this.battleLog.push('You have won the battle!');
+                this.updateBattleLogDisplay();
+            } else if (this.user.current_hp <= 0) {
+                this.gameOver = true;
+                this.message = 'You were defeated!';
+                this.battleLog.push('You have lost the battle...');
+                this.updateBattleLogDisplay();
+            } else {
+                this.fightDisabled = false;
+            }
+        },
+
+        // Restart the battle
+        restartBattle() {
+    this.gameOver = false;
+    this.fightDisabled = false;
+    // Explicitly reset user and boss data (if necessary)
+    this.boss.current_hp = this.boss.max_hp;
+    this.user.current_hp = this.user.max_hp;
+
+    // Fetch updated data
+    this.fetchBoss();
+    this.fetchUser();
+
+    this.message = '';
+    this.battleLog = [];
+    this.displayedBattleLog = [];
+},
+
+
+        // Inventory management
+        toggleInventory() {
+            this.showInventoryModal = !this.showInventoryModal;
         },
         getBossImage() {
             const level = Math.min(this.boss.level, 17);
@@ -220,162 +305,10 @@ export default {
         getItemImage(item) {
             return item.image_path;
         },
-
-        async fightTurn() {
-    this.fightDisabled = true;
-    this.message = 'The battle is ongoing...';
-    this.battleLog = [];
-    this.displayedBattleLog = [];
-    const oldBossHP = this.boss.current_hp;
-    const oldUserHP = this.user.current_hp;
-
-    try {
-        const response = await axios.post(
-            'http://localhost:5000/api/bosses/attack',
-            {},
-            { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-        );
-
-        this.battleLog = response.data.log || [];
-        await this.animateBattleLog();
-
-        this.message = response.data.message;
-
-        // Randomize critical hits for both boss and user
-        this.isUserCrit = Math.random() < (this.user.crit_bonus / 100);
-        this.isBossCrit = Math.random() < 0.1; // Example critical chance for the boss
-
-        // Set damage based on critical hit
-        this.floatingUserDamage = this.isUserCrit ? this.user.strength * 2 : this.user.strength;
-        this.floatingBossDamage = this.isBossCrit ? this.boss.strength * 2 : this.boss.strength;
-
-        // Trigger attack animations
-        this.bossAttacking = true;
-        this.userAttacking = true;
-
-        setTimeout(() => {
-            this.bossAttacking = false;
-            this.userAttacking = false;
-        }, 500); // Duration of the attack animation
-
-        setTimeout(() => {
-            this.floatingBossDamage = null;
-            this.floatingUserDamage = null;
-        }, 1500);
-
-        if (response.data.xpGained !== undefined) {
-            const newXp = this.user.xp + response.data.xpGained;
-            const newLevel = Math.floor(newXp / 100);
-            this.user.xp = newXp;
-            this.user.level = newLevel;
-        }
-        if (response.data.user) {
-            await this.animateHPChange(oldUserHP, response.data.user.current_hp, (val) => {
-                this.user.current_hp = val;
-            });
-            this.user.current_hp = response.data.user.current_hp;
-        }
-        if (response.data.boss) {
-            await this.animateHPChange(oldBossHP, response.data.boss.current_hp, (val) => {
-                this.boss.current_hp = val;
-            });
-            this.boss.current_hp = response.data.boss.current_hp;
-        }
-        if (this.message.includes('defeated')) {
-            this.gameOver = true;
-        }
-    } catch (error) {
-        console.error('Error during fight turn:', error);
-        this.message = 'Error during fight.';
-    } finally {
-        this.fightDisabled = false;
-    }
-},
-
-        async animateBattleLog() {
-            this.displayedBattleLog = [];
-            for (let entry of this.battleLog) {
-                this.displayedBattleLog.push(entry);
-                await this.sleep(1000);
-            }
-        },
-
-        animateHPChange(oldHP, newHP, setter) {
-            return new Promise((resolve) => {
-                const steps = 20;
-                const duration = 1000;
-                const delay = duration / steps;
-                const diff = oldHP - newHP;
-                let i = 1;
-                const interval = setInterval(() => {
-                    setter(Math.round(oldHP - (diff * i / steps)));
-                    i++;
-                    if (i > steps) {
-                        clearInterval(interval);
-                        resolve();
-                    }
-                }, delay);
-            });
-        },
-
-       sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-},
-        toggleInventory() {
-            this.showInventoryModal = !this.showInventoryModal;
-            if (this.showInventoryModal) {
-                this.fetchInventoryItems();
-            }
-        },
-        async fetchInventoryItems() {
-            try {
-                const response = await axios.get('http://localhost:5000/api/useritems', {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-                });
-                this.inventoryItems = response.data;
-            } catch (error) {
-                console.error('Error fetching inventory items:', error);
-            }
-        },
-        async useInventoryItem(item) {
-            try {
-                const response = await axios.post(
-                    'http://localhost:5000/api/useritems/use',
-                    { item_id: item.item_id },
-                    { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-                );
-                this.showMessage(response.data.message);
-                this.fetchUser();
-                this.fetchInventoryItems();
-                this.fetchBoss();
-            } catch (error) {
-                console.error('Error using inventory item:', error);
-                this.showMessage('Error using item.');
-            }
-        },
-        showMessage(msg) {
-            this.message = msg;
-            setTimeout(() => {
-                this.message = '';
-            }, 3000);
-        },
-        
-        restartBattle() {
-            this.fetchBoss();
-            this.fetchUser().then(() => {
-                this.user.current_hp = this.user.max_hp;
-                this.boss.current_hp = this.boss.max_hp;
-                this.message = '';
-                this.gameOver = false;
-                this.battleLog = [];
-                this.displayedBattleLog = [];
-            });
-        },
-
-        
     },
 };
 </script>
+
 
 <style scoped>
 .boss-image {
