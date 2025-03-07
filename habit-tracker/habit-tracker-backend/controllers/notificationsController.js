@@ -4,14 +4,13 @@ const pool = require('../models/db');
 exports.sendFriendRequest = async (req, res) => {
     try {
         const { receiver_id } = req.body;
-        const sender_id = req.user.id; // Assuming req.user is set after authentication
+        const sender_id = req.user.id;
 
         if (sender_id === receiver_id) {
             return res.status(400).json({ message: "You can't send a request to yourself." });
         }
         console.log(`Friend request sent from ${sender_id} to ${receiver_id}`);
 
-        // Check if a request already exists
         const existingRequest = await pool.query(
             "SELECT * FROM notifications WHERE sender_id = $1 AND receiver_id = $2 AND type = 'friend_request' AND status = 'pending'",
             [sender_id, receiver_id]
@@ -21,7 +20,7 @@ exports.sendFriendRequest = async (req, res) => {
             return res.status(400).json({ message: "Friend request already sent." });
         }
 
-        // Insert the friend request into the notifications table
+       
         await pool.query(
             "INSERT INTO notifications (sender_id, receiver_id, type, status) VALUES ($1, $2, 'friend_request', 'pending')",
             [sender_id, receiver_id]
@@ -37,37 +36,42 @@ exports.sendFriendRequest = async (req, res) => {
 // Accept or decline a friend request
 exports.respondToFriendRequest = async (req, res) => {
     try {
-        const { notification_id, action } = req.body;
+        console.log('Request body:', req.body);
+        const { requestId, accept } = req.body;
         const user_id = req.user.id; // The user responding to the request
+
+        console.log(`User ${user_id} is responding to friend request ${requestId} with accept ${accept}`);
 
         // Check if the notification exists
         const notification = await pool.query(
             "SELECT * FROM notifications WHERE id = $1 AND receiver_id = $2 AND type = 'friend_request' AND status = 'pending'",
-            [notification_id, user_id]
+            [requestId, user_id]
         );
+
+        console.log(`Notification found: ${JSON.stringify(notification.rows)}`);
 
         if (notification.rows.length === 0) {
             return res.status(404).json({ message: "Friend request not found." });
         }
 
         let newStatus;
-        if (action === "accept") {
+        if (accept) {
             newStatus = "accepted";
             // Add to friends table (assuming a friends table exists)
             await pool.query(
-                "INSERT INTO friends (user_id1, user_id2) VALUES ($1, $2)",
+                "INSERT INTO friends (user_id, friend_id, created_at) VALUES ($1, $2, NOW())",
                 [notification.rows[0].sender_id, user_id]
             );
-        } else if (action === "decline") {
-            newStatus = "declined";
         } else {
-            return res.status(400).json({ message: "Invalid action." });
+            newStatus = "declined";
         }
+
+        console.log(`Updating notification status to ${newStatus}`);
 
         // Update the notification status
         await pool.query(
             "UPDATE notifications SET status = $1 WHERE id = $2",
-            [newStatus, notification_id]
+            [newStatus, requestId]
         );
 
         res.status(200).json({ message: `Friend request ${newStatus}.` });
@@ -83,7 +87,11 @@ exports.getFriendRequests = async (req, res) => {
         const user_id = req.user.id; // Get logged-in user ID
 
         const requests = await pool.query(
-            "SELECT * FROM notifications WHERE receiver_id = $1 AND type = 'friend_request' AND status = 'pending' ORDER BY created_at DESC",
+            `SELECT notifications.id, notifications.sender_id, notifications.receiver_id, notifications.type, notifications.status, notifications.created_at, users.username AS sender_username
+             FROM notifications
+             JOIN users ON notifications.sender_id = users.id
+             WHERE notifications.receiver_id = $1 AND notifications.type = 'friend_request' AND notifications.status = 'pending'
+             ORDER BY notifications.created_at DESC`,
             [user_id]
         );
 

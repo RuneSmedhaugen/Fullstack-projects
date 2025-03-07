@@ -1,10 +1,6 @@
 const pool = require('../models/db');
 const { checkLevelUp } = require('./userController');
 
-// -----------------------
-// Retrieval, Update, Delete, etc.
-// -----------------------
-
 // Get all habits for a user
 const getHabits = async (req, res) => {
   const userId = req.user.id;
@@ -143,11 +139,6 @@ const markHabitDone = async (req, res) => {
   }
 };
 
-// -----------------------
-// Stats and Completion Data
-// -----------------------
-
-// Basic stats about habits and completions
 const getStats = async (req, res) => {
   const userId = req.user.id;
   try {

@@ -48,32 +48,35 @@
       console.error('Error fetching users:', error);
     }
   },
-      async sendFriendRequest(friendId) {
-        try {
-          const token = localStorage.getItem('token');
-          const response = await fetch('http://localhost:5000/api/notifications/sendFriendRequest', {
+  async sendFriendRequest(friendId) {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:5000/api/notifications/sendFriendRequest', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({ receiver_id: friendId }),
-          });
-  
-          if (response.ok) {
-            console.log('friend request sent')
+        });
+
+        if (response.ok) {
+            console.log('Friend request sent');
             const user = this.users.find((u) => u.id === friendId);
             if (user) {
-              user.isFriendRequestSent = true;
+                user.isFriendRequestSent = true;
             }
-            // Optionally, update notifications here
-          } else {
+        } else if (response.status === 401) {
+            console.error('Unauthorized. Redirecting to login.');
+            this.$router.push('/login');
+        } else {
             console.error('Failed to send friend request:', response.statusText);
-          }
-        } catch (error) {
-          console.error('Error sending friend request:', error);
         }
-      },
+    } catch (error) {
+        console.error('Error sending friend request:', error);
+    }
+}
+
     },
     mounted() {
       this.fetchUsers();

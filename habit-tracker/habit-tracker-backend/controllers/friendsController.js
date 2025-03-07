@@ -14,11 +14,28 @@ exports.addFriend = async (req, res) => {
 // Get friend list
 exports.getFriendList = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const friends = await Friends.findAll({ where: { userId } });
-    res.status(200).json(friends);
+      const { userId } = req.params;
+      console.log(`Fetching friend list for userId=${userId}`);
+
+      const friends = await pool.query(
+          `SELECT users.id AS friendId, users.username
+           FROM friends
+           JOIN users ON friends.friend_id = users.id
+           WHERE friends.user_id = $1
+           UNION
+           SELECT users.id AS friendId, users.username
+           FROM friends
+           JOIN users ON friends.user_id = users.id
+           WHERE friends.friend_id = $1`,
+          [userId]
+      );
+
+      console.log(`Friends found: ${JSON.stringify(friends.rows)}`);
+
+      res.status(200).json(friends.rows);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch friend list' });
+      console.error("Error fetching friend list:", error);
+      res.status(500).json({ message: "Internal server error" });
   }
 };
 
