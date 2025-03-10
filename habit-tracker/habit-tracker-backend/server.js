@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
-
+require('./middleware/ResetCompletions'); // Import the resetCompletions module to run the cron job
 dotenv.config();
 
 const authRoutes = require('./routes/authRoutes');
@@ -60,7 +60,7 @@ io.on('connection', (socket) => {
 // Start the server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT} test`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
 
 module.exports.io = io;

@@ -7,7 +7,6 @@ const {
   updateHabit,
   deleteHabit,
   markHabitDone,
-  getStats,
   getCompletionData,
   getFullStats,
   getYearlyCompletionData,
@@ -17,6 +16,8 @@ const {
   addWeeklyHabit,
   addMonthlyHabit,
   addYearlyHabit,
+  unmarkHabitDone,
+  getHabitCompletions,
 } = require('../controllers/habitController');
 
 // Separate add endpoints by time perspective
@@ -26,15 +27,17 @@ router.post('/monthly', authMiddleware, addMonthlyHabit);
 router.post('/yearly', authMiddleware, addYearlyHabit);
 
 // Other routes
-router.get('/fullstats', authMiddleware, getFullStats);
+router.get('/stats', authMiddleware, getFullStats);
 router.get('/completions', authMiddleware, getCompletionData);
-router.get('/stats', authMiddleware, getStats);
-router.get('/habits', authMiddleware, getHabits);
+router.get('/', authMiddleware, getHabits);
 router.put('/:id', authMiddleware, updateHabit);
 router.delete('/:id', authMiddleware, deleteHabit);
-router.post('/:habitId/completion', authMiddleware, markHabitDone);
 
-// Optionally, if you need completions endpoints by period, you can add:
+router.get('/get-completions', authMiddleware, getHabitCompletions);
+router.post('/mark-done/:habitId', authMiddleware, markHabitDone);
+router.delete('/unmark-done/:habitId', authMiddleware, unmarkHabitDone);
+
+
 router.get('/completions/yearly', authMiddleware, getYearlyCompletionData);
 router.get('/completions/weekly', authMiddleware, getWeeklyCompletionData);
 router.get('/completions/monthly', authMiddleware, getMonthlyCompletionData);

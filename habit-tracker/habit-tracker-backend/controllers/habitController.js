@@ -118,7 +118,7 @@ const markHabitDone = async (req, res) => {
     }
     const habit = habitResult.rows[0];
     const completionResult = await pool.query(
-      'INSERT INTO habit_completions (habit_id) VALUES ($1) RETURNING *',
+      'INSERT INTO habit_completions (habit_id, done_at) VALUES ($1, NOW()) RETURNING *',
       [habitId]
     );
     await pool.query(
@@ -136,6 +136,25 @@ const markHabitDone = async (req, res) => {
   } catch (error) {
     console.error("Error marking habit as done:", error);
     res.status(500).json({ message: "Error marking habit as done" });
+  }
+};
+
+// Unmark a habit as done
+const unmarkHabitDone = async (req, res) => {
+  const { habitId } = req.params;
+  const userId = req.user.id;
+  try {
+    const result = await pool.query(
+      'DELETE FROM habit_completions WHERE habit_id = $1 AND done_at::date = CURRENT_DATE RETURNING *',
+      [habitId]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Habit completion not found or not authorized' });
+    }
+    res.status(200).json({ message: 'Habit unmarked as done', completion: result.rows[0] });
+  } catch (error) {
+    console.error("Error unmarking habit as done:", error);
+    res.status(500).json({ message: "Error unmarking habit as done" });
   }
 };
 
@@ -340,6 +359,8 @@ const getMonthlyCompletionData = async (req, res) => {
 const getFullStats = async (req, res) => {
   const userId = req.user.id;
   try {
+    console.log(`Fetching full stats for user ID: ${userId}`);
+
     const habitStatsResult = await pool.query(
       `SELECT 
          h.id,
@@ -349,35 +370,55 @@ const getFullStats = async (req, res) => {
          h.streak_longest,
          h.time_perspective,
          (SELECT COUNT(*) FROM habit_completions hc WHERE hc.habit_id = h.id) AS completions,
-         (EXTRACT(DAY FROM (CURRENT_DATE - h.created_at::date)) - 
+         (DATE_PART('day', CURRENT_DATE - h.created_at) - 
           (SELECT COUNT(*) FROM habit_completions hc WHERE hc.habit_id = h.id)) AS missed
        FROM habits h
        WHERE h.user_id = $1
        ORDER BY h.id`,
       [userId]
     );
-    const habitStats = habitStatsResult.rows;
+    console.log('Habit stats retrieved:', habitStatsResult.rows);
+
     const overallResult = await pool.query(
       `SELECT 
          COUNT(*) AS total_habits,
          SUM((SELECT COUNT(*) FROM habit_completions hc WHERE hc.habit_id = h.id)) AS total_completions,
          MAX(streak_longest) AS longest_streak,
-         SUM((EXTRACT(DAY FROM (CURRENT_DATE - h.created_at::date)) - (SELECT COUNT(*) FROM habit_completions hc WHERE hc.habit_id = h.id))::integer) AS total_missed
+         SUM((DATE_PART('day', CURRENT_DATE - h.created_at) - (SELECT COUNT(*) FROM habit_completions hc WHERE hc.habit_id = h.id))::integer) AS total_missed
        FROM habits h
        WHERE h.user_id = $1`,
       [userId]
     );
+    console.log('Overall stats retrieved:', overallResult.rows);
+
     const overall = overallResult.rows[0];
-    res.json({ habitStats, overall });
+
+    res.json({ habitStats: habitStatsResult.rows, overall });
   } catch (error) {
     console.error('Error fetching full stats:', error);
     res.status(500).json({ message: 'Server error fetching stats.' });
   }
 };
 
+const getHabitCompletions = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const result = await pool.query(
+      `SELECT habit_id FROM habit_completions 
+       WHERE habit_id IN (SELECT id FROM habits WHERE user_id = $1) 
+       AND done_at::date = CURRENT_DATE`,
+      [userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching habit completions:', error);
+    res.status(500).json({ message: 'Server error fetching habit completions.' });
+  }
+};
+
 module.exports = {
   getHabits,
-  addHabit, // default add using payload's time_perspective
+  addHabit,
   updateHabit,
   deleteHabit,
   markHabitDone,
@@ -387,8 +428,10 @@ module.exports = {
   getYearlyCompletionData,
   getWeeklyCompletionData,
   getMonthlyCompletionData,
+  unmarkHabitDone,
+  getHabitCompletions,
 
-  // New separate add endpoints by time perspective
+  
   addDailyHabit: (req, res) => addHabitByType(req, res, 'daily'),
   addWeeklyHabit: (req, res) => addHabitByType(req, res, 'weekly'),
   addMonthlyHabit: (req, res) => addHabitByType(req, res, 'monthly'),

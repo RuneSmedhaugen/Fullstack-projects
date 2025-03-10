@@ -1,45 +1,59 @@
 <template>
-  <div class="p-6">
-    <h2 class="text-2xl font-bold mb-4">Habit Stats</h2>
+  <div class="container mt-4">
+    <h2 class="text-center mb-4">Habit Stats</h2>
 
     <!-- Overall Stats -->
-    <div class="grid grid-cols-2 gap-4">
-      <div class="bg-gray-100 p-4 rounded-lg shadow">
-        <p class="text-lg font-medium">Total Habits</p>
-        <p class="text-2xl font-bold">{{ stats.totalHabits }}</p>
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="card text-center">
+          <div class="card-body">
+            <p class="card-title">Total Habits</p>
+            <p class="card-text display-4">{{ stats.totalHabits }}</p>
+          </div>
+        </div>
       </div>
-      <div class="bg-gray-100 p-4 rounded-lg shadow">
-        <p class="text-lg font-medium">Total Completions</p>
-        <p class="text-2xl font-bold">{{ stats.totalCompletions }}</p>
+      <div class="col-md-4">
+        <div class="card text-center">
+          <div class="card-body">
+            <p class="card-title">Total Completions</p>
+            <p class="card-text display-4">{{ stats.totalCompletions }}</p>
+          </div>
+        </div>
       </div>
-      <div class="bg-gray-100 p-4 rounded-lg shadow">
-        <p class="text-lg font-medium">Longest Streak</p>
-        <p class="text-2xl font-bold">{{ stats.longestStreak }} days</p>
+      <div class="col-md-4">
+        <div class="card text-center">
+          <div class="card-body">
+            <p class="card-title">Longest Streak</p>
+            <p class="card-text display-4">{{ stats.longestStreak }} days</p>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Habit-Specific Stats -->
-    <div v-if="habitStats.length > 0" class="mt-6">
-      <h3 class="text-xl font-semibold mb-4">Stats for Each Habit</h3>
-      <div v-for="habit in habitStats" :key="habit.id" class="mb-4 bg-gray-50 p-4 rounded-lg shadow">
-        <h4 class="text-lg font-bold">{{ habit.name }}</h4>
-        <p class="text-gray-600">{{ habit.description }}</p>
-        <div class="grid grid-cols-2 gap-4 mt-2">
-          <div>
-            <p class="text-sm text-gray-500">Current Streak</p>
-            <p class="text-lg font-semibold">{{ habit.currentStreak }} days</p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500">Longest Streak</p>
-            <p class="text-lg font-semibold">{{ habit.longestStreak }} days</p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500">Total Completions</p>
-            <p class="text-lg font-semibold">{{ habit.completions }}</p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500">Missed Days</p>
-            <p class="text-lg font-semibold">{{ habit.missed }}</p>
+    <div v-if="habitStats.length > 0" class="row">
+      <h3 class="text-center mb-4">Stats for Each Habit</h3>
+      <div v-for="habit in habitStats" :key="habit.id" class="col-md-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h4 class="card-title">{{ habit.name }}</h4>
+            <p class="card-text text-muted">{{ habit.description }}</p>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500">Current Streak</p>
+              <p class="text-lg font-semibold">{{ habit.streak_current }} days</p>
+            </div>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500">Longest Streak</p>
+              <p class="text-lg font-semibold">{{ habit.streak_longest }} days</p>
+            </div>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500">Total Completions</p>
+              <p class="text-lg font-semibold">{{ habit.completions }}</p>
+            </div>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500">Missed Days</p>
+              <p class="text-lg font-semibold">{{ habit.missed }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -69,9 +83,9 @@ export default {
 
       const data = await response.json();
       this.stats = {
-        totalHabits: data.totalHabits,
-        totalCompletions: data.totalCompletions,
-        longestStreak: data.longestStreak,
+        totalHabits: data.overall.total_habits,
+        totalCompletions: data.overall.total_completions,
+        longestStreak: data.overall.longest_streak,
       };
 
       // Check if per-habit stats exist
@@ -86,7 +100,41 @@ export default {
 </script>
 
 <style scoped>
-p {
+.card-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.card-text {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card {
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card h4 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.card p {
   margin: 0;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-lg {
+  font-size: 1.25rem;
+  font-weight: bold;
 }
 </style>
