@@ -1,3 +1,4 @@
+<!-- filepath: c:\Users\Rune S\source\repos\fullstack\habit-tracker\habit-tracker-frontend\habit-tracker\src\tabs\UserProfile.vue -->
 <template>
   <div class="container mt-5">
     <div class="card shadow-sm p-4">
@@ -54,7 +55,10 @@
         <ul class="list-group">
           <li v-for="friend in friends" :key="friend.friendId" class="list-group-item d-flex justify-content-between align-items-center">
             <span>{{ friend.username }}</span>
-            <button class="btn btn-sm btn-outline-danger" @click="removeFriend(friend.friendId)">Remove</button>
+            <div>
+              <button class="btn btn-sm btn-outline-danger me-2" @click="removeFriend(friend.friendId)">Remove</button>
+              <button class="btn btn-sm btn-primary" @click="sendMessage(friend.username)">Send Message</button>
+            </div>
           </li>
         </ul>
         <button class="btn btn-link mt-3" @click="toggleFriendsList">Back to Profile</button>
@@ -218,6 +222,9 @@ export default {
       } catch (error) {
         console.error('Error deleting friend:', error);
       }
+    },
+    sendMessage(friendUsername) {
+      this.$router.push({ name: 'Chat', params: { friendUsername } });
     },
     formatDate(dateString) {
       const options = { year: 'numeric', month: 'long', day: 'numeric' };
