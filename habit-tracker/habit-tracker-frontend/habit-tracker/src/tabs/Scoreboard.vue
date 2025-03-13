@@ -1,4 +1,3 @@
-<!-- src/tabs/Scoreboard.vue -->
 <template>
     <div class="container mt-4">
       <h2 class="text-center mb-4">Scoreboard</h2>
@@ -20,7 +19,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(user, index) in scoreboard" :key="user.id">
+          <tr v-for="(user, index) in sortedScoreboard" :key="user.id">
             <td>{{ index + 1 }}</td>
             <td>{{ user.username }}</td>
             <td>{{ user.xp }}</td>
@@ -41,6 +40,11 @@
         scoreboard: [],
         activeTab: 'global'
       };
+    },
+    computed: {
+      sortedScoreboard() {
+        return this.scoreboard.slice().sort((a, b) => b.xp - a.xp);
+      }
     },
     methods: {
       async fetchGlobalScoreboard() {
@@ -78,4 +82,3 @@
     color: white;
   }
   </style>
-  

@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
-require('./middleware/ResetCompletions'); // Import the resetCompletions module to run the cron job
+require('./middleware/ResetCompletions');
 dotenv.config();
 
 const authRoutes = require('./routes/authRoutes');
@@ -12,7 +12,6 @@ const bossRoutes = require('./routes/bossRoutes');
 const userRoutes = require('./routes/userRoutes');
 const itemRoutes = require('./routes/itemRoutes');
 const userItemsRoutes = require('./routes/userItemsRoutes');
-const notificationRoutes = require('./routes/notificationRoutes');
 const friendsRoutes = require('./routes/FriendsRoutes');
 const scoreboardRoutes = require('./routes/scoreboardRoutes');
 
@@ -32,7 +31,6 @@ app.use('/api/bosses', bossRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/useritems', userItemsRoutes);
-app.use('/api/notifications', notificationRoutes);
 app.use('/api/friends', friendsRoutes);
 app.use('/api/scoreboard', scoreboardRoutes);
 
