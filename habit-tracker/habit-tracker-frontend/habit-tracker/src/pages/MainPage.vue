@@ -36,6 +36,7 @@
             <button @click="currentTab = 'ItemShop'">Item Shop</button>
             <button @click="currentTab = 'BossBattle'">Boss Battle</button>
             <button @click="currentTab = 'UserStats'">Stats</button>
+            <button @click="currentTab = 'Scoreboard'">Scoreboard</button>
             <button @click="currentTab = 'UsersTab'">Users</button>
             <button @click="currentTab = 'UserProfile'">Profile</button>
             <button @click="currentTab = 'UserSettings'">Settings</button>
@@ -58,6 +59,7 @@ import UserStats from '../tabs/UserStats.vue';
 import YourHabits from '../tabs/YourHabits.vue';
 import UsersTab from '../tabs/UsersTab.vue';
 import quotes from '@/quotes';
+import Scoreboard from '../tabs/Scoreboard.vue';
 
 export default {
     name: 'MainPage',
@@ -82,6 +84,7 @@ export default {
                 UserStats,
                 YourHabits,
                 UsersTab, 
+                Scoreboard,
             }[this.currentTab];
         },
         unreadCount() {
