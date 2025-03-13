@@ -10,6 +10,7 @@
         <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="Type a message..." />
         <button @click="sendMessage">Send</button>
       </div>
+      <button class="btn btn-secondary mt-3" @click="goBack">Back to Main</button>
     </div>
   </template>
   
@@ -47,6 +48,9 @@
           this.saveMessages();
           this.newMessage = '';
         }
+      },
+      goBack() {
+        this.$router.push('/main');
       }
     }
   };
@@ -80,4 +84,3 @@
     padding: 5px 10px;
   }
   </style>
-  

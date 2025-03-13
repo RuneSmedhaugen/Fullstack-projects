@@ -1,3 +1,4 @@
+<!-- filepath: c:\Users\Rune S\source\repos\fullstack\habit-tracker\habit-tracker-frontend\habit-tracker\src\tabs\YourHabits.vue -->
 <template>
   <div id="yourHabitsDiv" class="container mt-4">
     <h2 class="mb-4">Your Habits</h2>
@@ -30,8 +31,8 @@
             />
             <label class="form-check-label" :for="'habit-' + habit.id">
               <span class="habit-details fw-bold">{{ habit.name }}</span>
-              <span class="habit-description text-muted">{{ habit.description }}</span>
-              <span class="habit-purpose text-muted">{{ habit.purpose }}</span>
+              <span class="habit-description text-muted">Description: {{ habit.description }}</span>
+              <span class="habit-purpose text-muted">Purpose: {{ habit.purpose }}</span>
               <span class="habit-time-perspective text-muted">{{ habit.time_perspective }}</span>
             </label>
           </div>
@@ -263,6 +264,7 @@ export default {
   border: 1px solid #dee2e6;
   border-radius: 0.25rem;
   transition: background-color 0.3s;
+  cursor: pointer; /* Add cursor pointer */
 }
 
 .nav-tabs .nav-link.active {
