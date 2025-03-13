@@ -16,7 +16,7 @@ exports.getFriendScoreboard = async (req, res) => {
   try {
     const userId = req.user.id;
     const friendsResult = await pool.query(
-      'SELECT friendid FROM friends WHERE user_id = $1',
+      'SELECT friend_id FROM friends WHERE user_id = $1',
       [userId]
     );
     
