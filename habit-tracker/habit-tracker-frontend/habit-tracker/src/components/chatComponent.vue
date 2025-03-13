@@ -1,4 +1,3 @@
-<!-- filepath: c:\Users\Rune S\source\repos\fullstack\habit-tracker\habit-tracker-frontend\habit-tracker\src\components\chatComponent.vue -->
 <template>
     <div class="chat-container">
       <h3>Chat with {{ friendUsername }}</h3>
@@ -42,7 +41,7 @@
         if (this.newMessage.trim() !== '') {
           const message = {
             sender: this.sender,
-            text: this.newMessage
+            text: this.newMessage.trim()
           };
           this.messages.push(message);
           this.saveMessages();
@@ -81,3 +80,4 @@
     padding: 5px 10px;
   }
   </style>
+  

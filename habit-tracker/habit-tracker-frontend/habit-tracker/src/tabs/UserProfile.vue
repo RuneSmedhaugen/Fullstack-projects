@@ -57,7 +57,7 @@
             <span>{{ friend.username }}</span>
             <div>
               <button class="btn btn-sm btn-outline-danger me-2" @click="removeFriend(friend.friendId)">Remove</button>
-              <button class="btn btn-sm btn-primary" @click="sendMessage(friend.username)">Send Message</button>
+              <button class="btn btn-sm btn-primary" @click="sendMessage(friend.friendid)">Send Message</button>
             </div>
           </li>
         </ul>
@@ -93,7 +93,7 @@ export default {
 
   watch: {
     showFriendRequests(val) {
-      if (val) this.fetchFriendRequests();  // Fetch friend requests when the section is shown
+      if (val) this.fetchFriendRequests();
     }
   },
 
@@ -129,7 +129,7 @@ export default {
           console.log('Friend request response sent');
           this.friendRequests = this.friendRequests.filter(req => req.id !== requestId);
           if (accept) {
-            this.fetchFriends();  // Refresh friends list if accepted
+            this.fetchFriends();
           }
         } else {
           console.error('Failed to respond to friend request');
@@ -148,10 +148,10 @@ export default {
         });
         if (response.status === 401) {
           console.error('Unauthorized. Redirecting to login.');
-          this.$router.push('/login');  // Assuming you're using Vue Router
+          this.$router.push('/login');
         } else if (response.ok) {
           this.userProfile = await response.json();
-          this.editProfile = { ...this.userProfile };  // Initialize editProfile with userProfile data
+          this.editProfile = { ...this.userProfile };
         } else {
           console.error('Failed to fetch user profile');
         }
@@ -223,9 +223,10 @@ export default {
         console.error('Error deleting friend:', error);
       }
     },
-    sendMessage(friendUsername) {
-      this.$router.push({ name: 'Chat', params: { friendUsername } });
-    },
+    sendMessage(friendId) {
+    this.$router.push({ name: 'Chat', params: { friendId } });
+  },
+
     formatDate(dateString) {
       const options = { year: 'numeric', month: 'long', day: 'numeric' };
       return new Date(dateString).toLocaleDateString(undefined, options);

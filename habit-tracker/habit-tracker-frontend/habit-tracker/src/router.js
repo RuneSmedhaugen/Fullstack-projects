@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LoginPage from './pages/LoginPage.vue';
 import RegisterPage from './pages/RegisterPage.vue';
 import MainPage from './pages/MainPage.vue';
+import ChatComponent from './components/chatComponent.vue';
 
 const routes = [
   {
@@ -23,6 +24,12 @@ const routes = [
     path: '/main',
     name: 'Main',
     component: MainPage
+  },
+
+  {
+    path: '/chat/:friendId',
+    name: 'Chat',
+    component: ChatComponent
   },
 
 ];
