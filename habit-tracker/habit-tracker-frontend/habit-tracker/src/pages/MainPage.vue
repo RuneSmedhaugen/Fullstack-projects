@@ -49,8 +49,8 @@ export default {
             quote: '',
             author: '',
             notifications: [],
-            showNotifications: false,
             quoteInterval: null,
+            timeOfDayClass: '',
         };
     },
     computed: {
@@ -67,13 +67,11 @@ export default {
                 Scoreboard,
             }[this.currentTab];
         },
-        unreadCount() {
-            return this.notifications.filter(notification => !notification.read).length;
-        }
     },
     mounted() {
         this.fetchQuote();
         this.quoteInterval = setInterval(this.fetchQuote, 15000);
+        this.setTimeOfDayClass();
     },
     beforeUnmount() {
         clearInterval(this.quoteInterval);
@@ -84,7 +82,21 @@ export default {
             this.quote = quotes[randomIndex].quote;
             this.author = quotes[randomIndex].author;
         },
-    }
+
+        setTimeOfDayClass() {
+      const hour = new Date().getHours();
+      if (hour >= 6 && hour < 12) {
+        this.timeOfDayClass = 'morning';
+      } else if (hour >= 12 && hour < 18) {
+        this.timeOfDayClass = 'day';
+      } else if (hour >= 18 && hour < 21) {
+        this.timeOfDayClass = 'evening';
+      } else {
+        this.timeOfDayClass = 'night';
+      }
+      document.body.className = this.timeOfDayClass;
+    },
+  }
 };
 </script>
 

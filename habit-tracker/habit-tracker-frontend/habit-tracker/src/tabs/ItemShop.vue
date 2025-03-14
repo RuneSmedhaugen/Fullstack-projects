@@ -163,12 +163,15 @@
     font-weight: bold;
     color: #FFD700;
     text-shadow: 2px 2px 10px rgba(255, 215, 0, 0.8);
+    background-color: white;
+    padding: 10px;
+    border-radius: 100px;
   }
   
   .gold-display {
     font-size: 1.2rem;
     margin-bottom: 20px;
-    background: rgba(255, 223, 0, 0.2);
+    background: rgb(255, 255, 255);
     padding: 10px;
     border-radius: 8px;
     display: inline-block;
@@ -176,7 +179,7 @@
   }
   
   .gold-amount {
-    color: #FFD700;
+    color: #f8be00;
     font-size: 1.4rem;
   }
   

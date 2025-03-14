@@ -34,7 +34,7 @@
   import axios from 'axios';
   
   export default {
-    name: 'Scoreboard',
+    name: 'ScoreBoard',
     data() {
       return {
         scoreboard: [],

@@ -101,6 +101,7 @@
     padding: 15px;
     text-align: center;
     width: 200px;
+    background-color: white;
   }
   
   button {

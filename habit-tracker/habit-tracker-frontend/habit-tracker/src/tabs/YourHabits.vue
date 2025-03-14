@@ -1,7 +1,7 @@
 <!-- filepath: c:\Users\Rune S\source\repos\fullstack\habit-tracker\habit-tracker-frontend\habit-tracker\src\tabs\YourHabits.vue -->
 <template>
   <div id="yourHabitsDiv" class="container mt-4">
-    <h2 class="mb-4">Your Habits</h2>
+    <h2 class="h2class">Your Habits</h2>
     <div v-if="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
     <div v-if="successMessage" class="alert alert-success">{{ successMessage }}</div>
     
@@ -262,9 +262,10 @@ export default {
 
 .nav-tabs .nav-link {
   border: 1px solid #dee2e6;
+  background-color: white;
   border-radius: 0.25rem;
   transition: background-color 0.3s;
-  cursor: pointer; /* Add cursor pointer */
+  cursor: pointer;
 }
 
 .nav-tabs .nav-link.active {
@@ -315,5 +316,11 @@ export default {
   display: block;
   font-size: 14px;
   color: #666;
+}
+
+.h2class {
+  background-color: rgb(247, 247, 247);
+  display: inline;
+  box-shadow: 2px 2px 2px #888888;
 }
 </style>

@@ -5,9 +5,32 @@
     <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuestLog</title>
+    <style>
+
+.morning {
+  background: url('./src/img/backgrounds/morning.jpg') no-repeat center center;
+  height: 100%;
+  background-size: cover;
+}
+
+.day {
+  background: url('./src/img/backgrounds/day.jpg') no-repeat center center;
+  background-size: cover;
+}
+
+.evening {
+  background: url('./src/img/backgrounds/evening.jpg') no-repeat center center;
+  background-size: cover;
+}
+
+.night {
+  background: url('./src/img/backgrounds/night.jpg') no-repeat center center;
+  background-size: cover;
+}
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app" :class="timeOfDayClass"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
