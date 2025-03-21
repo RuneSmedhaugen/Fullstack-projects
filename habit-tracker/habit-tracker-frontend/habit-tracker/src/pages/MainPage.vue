@@ -125,6 +125,7 @@ export default {
     text-align: center;
     padding: 20px;
     font-family: Arial, sans-serif;
+    height: 100%;
 }
 
 .quote-ticker {

@@ -322,5 +322,6 @@ export default {
   background-color: rgb(247, 247, 247);
   display: inline;
   box-shadow: 2px 2px 2px #888888;
+  color: black;
 }
 </style>

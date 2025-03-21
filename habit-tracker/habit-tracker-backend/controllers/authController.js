@@ -13,9 +13,7 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: 'Email already in use' });
         }
 
-        // Generate a salt for password hashing
         const salt = await bcrypt.genSalt(10);
-        // Hash the password using bcrypt
         const hashedPassword = await bcrypt.hash(password, salt);
 
         // Insert the new user into the database with the hashed password and salt

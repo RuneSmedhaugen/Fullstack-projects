@@ -176,6 +176,7 @@
     border-radius: 8px;
     display: inline-block;
     font-weight: bold;
+    color: black;
   }
   
   .gold-amount {

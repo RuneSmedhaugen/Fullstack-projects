@@ -4,7 +4,6 @@
       <div class="user-cards">
         <div v-for="user in users" :key="user.id" class="user-card">
           <h3>{{ user.username }}</h3>
-          <p>Total Habits: {{ user.totalHabits }}</p>
           <button
             :disabled="user.isFriendRequestSent || user.isFriend"
             @click="sendFriendRequest(user.id)"
@@ -21,14 +20,13 @@
     name: 'UsersTab',
     data() {
       return {
-        users: [], // Array of user objects from the API
+        users: [],
       };
     },
     methods: {
         async fetchUsers() {
     try {
-      // Retrieve the token from local storage or wherever you store it
-      const token = localStorage.getItem('token'); // Adjust this if your token is stored elsewhere
+      const token = localStorage.getItem('token');
 
       const response = await fetch('http://localhost:5000/api/users', {
         method: 'GET',
@@ -101,7 +99,8 @@
     padding: 15px;
     text-align: center;
     width: 200px;
-    background-color: white;
+    background-color: rgb(255, 255, 255);
+    color: black;
   }
   
   button {
