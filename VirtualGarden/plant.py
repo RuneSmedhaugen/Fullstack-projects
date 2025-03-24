@@ -1,5 +1,7 @@
 from PyQt6.QtCore import QTimer
 
+# Denne klassen er for testing enn så lenge, og vil bli endret senere
+
 class Plant:
     def __init__(self):
         self.stage = 0  # Start as a child plant
