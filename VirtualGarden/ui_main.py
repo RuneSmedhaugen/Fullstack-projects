@@ -25,6 +25,7 @@ class GardenUI(QWidget):
         self.seed_inventory_label = QLabel("Seed Inventory:")
         self.seed_list = QListWidget()
         self.seed_list.itemClicked.connect(self.plant_seed)
+        self.seed_inventory = {}  # Dictionary to track seed quantities
 
         # Layout for plants
         self.plants = []  # Store plants
@@ -39,27 +40,45 @@ class GardenUI(QWidget):
         layout.addLayout(self.plant_container)
         self.setLayout(layout)
 
-    def update_seed_inventory(self, seeds):
-        """Update the seed inventory list."""
+    def update_seed_inventory(self, seed_name):
+        """Update the seed inventory list with quantities."""
+        if seed_name in self.seed_inventory:
+            self.seed_inventory[seed_name] += 1
+        else:
+            self.seed_inventory[seed_name] = 1
+        
+        self.refresh_seed_list()
+
+    def refresh_seed_list(self):
+        """Refresh the displayed seed list with quantities."""
         self.seed_list.clear()
-        for seed in seeds:
-            self.seed_list.addItem(seed)
+        for seed, quantity in self.seed_inventory.items():
+            self.seed_list.addItem(f"{seed} x{quantity}")
 
     def plant_seed(self, item):
         """Plant a seed from the inventory."""
-        seed_name = item.text()
-        plant = Plant()  # Create plant instance
-        self.plants.append(plant)
+        seed_text = item.text()
+        if " x" in seed_text:
+            seed_name, _ = seed_text.rsplit(" x", 1)  # Extract seed name
+        else:
+            seed_name = seed_text
+        
+        if seed_name in self.seed_inventory and self.seed_inventory[seed_name] > 0:
+            self.seed_inventory[seed_name] -= 1
+            if self.seed_inventory[seed_name] == 0:
+                del self.seed_inventory[seed_name]
+            self.refresh_seed_list()
 
-        plant_label = QLabel(self)
-        pixmap = QPixmap(plant.image)
-        plant_label.setPixmap(pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio))
+            plant = Plant()  # Create plant instance
+            self.plants.append(plant)
 
-        plant.grown.connect(lambda: self.update_plant_image(plant, plant_label))
-        self.plant_container.addWidget(plant_label)
+            plant_label = QLabel(self)
+            pixmap = QPixmap(plant.image)
+            plant_label.setPixmap(pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio))
 
-        # Remove the seed from inventory
-        self.seed_list.takeItem(self.seed_list.row(item))
+            # Connect signal
+            plant.grown.connect(lambda: self.update_plant_image(plant, plant_label))
+            self.plant_container.addWidget(plant_label)
 
     def update_plant_image(self, plant, label):
         """Update plant image when it grows."""
