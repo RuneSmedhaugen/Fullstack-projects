@@ -1,16 +1,17 @@
-from PyQt6.QtCore import QTimer
+from PyQt6.QtCore import QTimer, pyqtSignal, QObject
 
-# Denne klassen er for testing enn så lenge, og vil bli endret senere
+class Plant(QObject):
+    grown = pyqtSignal()  # Signal to notify UI when plant grows
 
-class Plant:
     def __init__(self):
+        super().__init__()
         self.stage = 0  # Start as a child plant
         
         # Dictionary to store images for different growth stages
         self.images = {
-            0: "path_to_child_image.png",
-            1: "path_to_half_grown_image.png",
-            2: "path_to_fully_grown_image.png"
+            0: "assets/images/plant1.jpg",
+            1: "assets/images/plant2.png",
+            2: "assets/images/plant3.jpg"
         }
 
         self.image = self.images[self.stage]  # Set initial image
@@ -28,6 +29,7 @@ class Plant:
             self.stage += 1
             self.image = self.images[self.stage]
             print(f"Plant grew to stage {self.stage}!")
+            self.grown.emit()  # Emit signal to update UI
         else:
             self.timer.stop()  # Stop the timer if fully grown
 
@@ -37,8 +39,10 @@ class Plant:
             self.stage += 1
             self.image = self.images[self.stage]
             print(f"Plants merged and grew to stage {self.stage}!")
+            self.grown.emit()  # Notify UI that the plant changed
 
             if self.stage == 2:
                 self.timer.stop()  # Stop the timer if fully grown
+            return True
         else:
-            print("Plants cannot be merged!")
+            return False  # Merge failed
