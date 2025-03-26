@@ -83,7 +83,7 @@ class GardenUI(QWidget):
     
     def harvest_plants(self):
         """Harvest fully grown plants and add them to inventory."""
-        print("Harvesting plants...")  # Debugging
+        print("Harvesting plants...")
         self.update_sell_list()
     
     def update_sell_list(self):
