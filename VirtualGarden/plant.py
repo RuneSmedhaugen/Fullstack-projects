@@ -3,18 +3,31 @@ from PyQt6.QtCore import QTimer, pyqtSignal, QObject
 class Plant(QObject):
     grown = pyqtSignal()  # Signal to notify UI when plant grows
 
-    def __init__(self):
+    def __init__(self, seed_name):
         super().__init__()
         self.stage = 0  # Start as a child plant
         
-        # Dictionary to store images for different growth stages
+        # Dictionary to store images for different growth stages per plant type
         self.images = {
-            0: "assets/images/plant1.jpg",
-            1: "assets/images/plant2.png",
-            2: "assets/images/plant3.jpg"
+            "Sunflower Seed": {
+                0: "assets/images/pinkflower.jpg",
+                1: "assets/images/pinkflower2.png",
+                2: "assets/images/yellowflower.jpg"
+            },
+            "Rose Seed": {
+                0: "assets/images/rose1.png",
+                1: "assets/images/pinkflower2.png",
+                2: "assets/images/rose1.png"
+            },
+            "Tulip Seed": {
+                0: "assets/images/plant1.jpg",
+                1: "assets/images/plant3.jpg",
+                2: "assets/images/plant4.jpg"
+            }
         }
 
-        self.image = self.images[self.stage]  # Set initial image
+        self.seed_name = seed_name
+        self.image_path = self.images.get(seed_name, {}).get(self.stage, "assets/images/default_plant.png")  # Default image if missing
 
         # Timer for automatic growth
         self.timer = QTimer()
@@ -27,22 +40,8 @@ class Plant(QObject):
         """Advance the plant to the next stage if possible"""
         if self.stage < 2:  # Ensure we don't grow past the final stage
             self.stage += 1
-            self.image = self.images[self.stage]
-            print(f"Plant grew to stage {self.stage}!")
+            self.image_path = self.images[self.seed_name].get(self.stage, self.image_path)
+            print(f"{self.seed_name} grew to stage {self.stage}!")
             self.grown.emit()  # Emit signal to update UI
         else:
             self.timer.stop()  # Stop the timer if fully grown
-
-    def merge(self, other_plant):
-        """Merge 2 of the same plants of the same stage to grow to the next stage"""
-        if self.stage == other_plant.stage and self.stage < 2:
-            self.stage += 1
-            self.image = self.images[self.stage]
-            print(f"Plants merged and grew to stage {self.stage}!")
-            self.grown.emit()  # Notify UI that the plant changed
-
-            if self.stage == 2:
-                self.timer.stop()  # Stop the timer if fully grown
-            return True
-        else:
-            return False  # Merge failed

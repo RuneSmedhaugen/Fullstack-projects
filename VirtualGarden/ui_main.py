@@ -4,88 +4,93 @@ from PyQt6.QtGui import QPixmap
 from plant import Plant
 from SeedShopUI import SeedShop
 
-
 class GardenUI(QWidget):
     def __init__(self):
         super().__init__()
-
-        # Set background
         self.setStyleSheet("background-color: green;")
-
-        # Title
-        self.title = QLabel("🌱 Virtual Garden", self)
+        self.setWindowTitle("Virtual Garden")
+        self.plants = []
+        self.title = QLabel("\U0001F331 Virtual Garden", self)
         self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.title.setStyleSheet("font-size: 20px; font-weight: bold;")
-
-        # Buttons
+        
+        self.currency = 20
+        self.currency_label = QLabel(f"\U0001F4B0 Currency: ${self.currency}")
+        self.currency_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.currency_label.setStyleSheet("font-size: 14px; font-weight: bold;")
+        
         self.add_plant_button = QPushButton("Open Seed Shop")
         self.add_plant_button.clicked.connect(self.open_seed_shop)
-
-        # Seed Inventory
+        
         self.seed_inventory_label = QLabel("Seed Inventory:")
         self.seed_list = QListWidget()
         self.seed_list.itemClicked.connect(self.plant_seed)
-        self.seed_inventory = {}  # Dictionary to track seed quantities
-
-        # Layout for plants
-        self.plants = []  # Store plants
-        self.plant_container = QHBoxLayout()  # Horizontal layout for plants
-
-        # Main layout
+        
+        self.seed_inventory = {}
+        self.plant_inventory = {}
+        self.plant_container = QHBoxLayout()
+        
+        self.harvest_button = QPushButton("Harvest Plants")
+        self.harvest_button.clicked.connect(self.harvest_plants)
+        
         layout = QVBoxLayout()
         layout.addWidget(self.title)
+        layout.addWidget(self.currency_label)
         layout.addWidget(self.add_plant_button)
         layout.addWidget(self.seed_inventory_label)
         layout.addWidget(self.seed_list)
+        layout.addWidget(self.harvest_button)
         layout.addLayout(self.plant_container)
         self.setLayout(layout)
-
+    
+    def update_currency_display(self):
+        self.currency_label.setText(f"\U0001F4B0 Currency: ${self.currency}")
+    
     def update_seed_inventory(self, seed_name):
-        """Update the seed inventory list with quantities."""
         if seed_name in self.seed_inventory:
             self.seed_inventory[seed_name] += 1
         else:
             self.seed_inventory[seed_name] = 1
-        
         self.refresh_seed_list()
-
+    
     def refresh_seed_list(self):
-        """Refresh the displayed seed list with quantities."""
         self.seed_list.clear()
         for seed, quantity in self.seed_inventory.items():
             self.seed_list.addItem(f"{seed} x{quantity}")
-
+    
     def plant_seed(self, item):
-        """Plant a seed from the inventory."""
         seed_text = item.text()
-        if " x" in seed_text:
-            seed_name, _ = seed_text.rsplit(" x", 1)  # Extract seed name
-        else:
-            seed_name = seed_text
-        
+        seed_name, _ = seed_text.rsplit(" x", 1)
         if seed_name in self.seed_inventory and self.seed_inventory[seed_name] > 0:
             self.seed_inventory[seed_name] -= 1
-            if self.seed_inventory[seed_name] == 0:
-                del self.seed_inventory[seed_name]
-            self.refresh_seed_list()
+        if self.seed_inventory[seed_name] == 0:
+            del self.seed_inventory[seed_name]
+        self.refresh_seed_list()
+        
+        # Create plant instance
+        plant = Plant(seed_name)
+        self.plants.append(plant)
+        
+        # Create QLabel for plant
+        plant_label = QLabel()
+        plant_label.setPixmap(QPixmap(plant.image_path).scaled(50, 50))
+        self.plant_container.addWidget(plant_label)
+        
+        # Connect plant growth to image update
+        plant.grown.connect(lambda: plant_label.setPixmap(QPixmap(plant.image_path).scaled(50, 50)))
 
-            plant = Plant()  # Create plant instance
-            self.plants.append(plant)
 
-            plant_label = QLabel(self)
-            pixmap = QPixmap(plant.image)
-            plant_label.setPixmap(pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio))
-
-            # Connect signal
-            plant.grown.connect(lambda: self.update_plant_image(plant, plant_label))
-            self.plant_container.addWidget(plant_label)
-
-    def update_plant_image(self, plant, label):
-        """Update plant image when it grows."""
-        pixmap = QPixmap(plant.image)
-        label.setPixmap(pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio))
-
+    
+    def harvest_plants(self):
+        """Harvest fully grown plants and add them to inventory."""
+        print("Harvesting plants...")  # Debugging
+        self.update_sell_list()
+    
+    def update_sell_list(self):
+        """Update the sell list in the shop after harvesting."""
+        if hasattr(self, "shop"):
+            self.shop.update_sell_list()
+    
     def open_seed_shop(self):
-        """Open the seed shop window."""
         self.shop = SeedShop(self)
         self.shop.exec()
