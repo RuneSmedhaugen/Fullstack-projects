@@ -11,18 +11,15 @@ class SeedShop(QDialog):
         self.setGeometry(200, 200, 400, 400)
         self.garden_ui = garden_ui
 
-        # Tabs
+        # Tabs for buying and selling
         self.tabs = QTabWidget()
         self.buy_tab = QWidget()
         self.sell_tab = QWidget()
-
         self.tabs.addTab(self.buy_tab, "Buy Seeds")
         self.tabs.addTab(self.sell_tab, "Sell Plants")
 
-        # Seed options
+        # Seed options for buying
         self.seeds = {"Sunflower Seed": 5, "Rose Seed": 7, "Tulip Seed": 6}
-
-        # Buy Tab UI
         self.seed_list = QListWidget()
         for seed, price in self.seeds.items():
             self.seed_list.addItem(f"{seed} - ${price}")
@@ -42,7 +39,6 @@ class SeedShop(QDialog):
         self.quantity_input.setMinimum(1)
         self.quantity_input.setMaximum(1)
         self.quantity_input.setSuffix(" pcs")
-
         sell_layout = QVBoxLayout()
         sell_layout.addWidget(self.sell_list)
         sell_layout.addWidget(self.sell_price_label)
@@ -50,7 +46,7 @@ class SeedShop(QDialog):
         sell_layout.addWidget(self.sell_button)
         self.sell_tab.setLayout(sell_layout)
 
-        # Main Layout
+        # Main layout for the shop window
         layout = QVBoxLayout()
         layout.addWidget(self.tabs)
         self.setLayout(layout)
@@ -59,7 +55,7 @@ class SeedShop(QDialog):
         self.update_sell_prices()
         self.price_timer = QTimer(self)
         self.price_timer.timeout.connect(self.update_sell_prices)
-        self.price_timer.start(300000)  # Update every 5 minutes
+        self.price_timer.start(300000)  # Update prices every 5 minutes
 
     def buy_seed(self):
         selected_item = self.seed_list.currentItem()
@@ -75,19 +71,21 @@ class SeedShop(QDialog):
                 print("Not enough currency!")
 
     def update_sell_prices(self):
-        """Randomize selling prices."""
-        self.sell_prices = {"Sunflower": random.randint(8, 12), "Rose": random.randint(10, 15), "Tulip": random.randint(9, 13)}
-        self.sell_price_label.setText(f"💰 Sell Prices Updated!")
+        """Randomize selling prices using keys that match seed names."""
+        self.sell_prices = {"Sunflower Seed": random.randint(8, 12),
+                            "Rose Seed": random.randint(10, 15),
+                            "Tulip Seed": random.randint(9, 13)}
+        self.sell_price_label.setText("💰 Sell Prices Updated!")
         self.update_sell_list()
 
     def update_sell_list(self):
-        """Update the sell list with available plants."""
+        """Update the sell list with available harvested plants."""
         self.sell_list.clear()
         for plant, quantity in self.garden_ui.plant_inventory.items():
             self.sell_list.addItem(f"{plant} x{quantity}")
 
     def sell_plant(self):
-        """Sell selected plants."""
+        """Sell selected plants and update the harvested garden display."""
         selected_item = self.sell_list.currentItem()
         if selected_item:
             plant_text = selected_item.text()
@@ -95,7 +93,6 @@ class SeedShop(QDialog):
             quantity = int(quantity_text)
             sell_price = self.sell_prices.get(plant_name, 0)
             sell_quantity = self.quantity_input.value()
-
             if sell_quantity <= quantity:
                 self.garden_ui.currency += sell_price * sell_quantity
                 self.garden_ui.update_currency_display()
@@ -103,6 +100,8 @@ class SeedShop(QDialog):
                 if self.garden_ui.plant_inventory[plant_name] <= 0:
                     del self.garden_ui.plant_inventory[plant_name]
                 self.update_sell_list()
+                # Update harvested garden display based on remaining inventory
+                self.garden_ui.harvested_garden.update_plants(self.garden_ui.plant_inventory)
                 print(f"Sold {sell_quantity} {plant_name}(s) for ${sell_price * sell_quantity}!")
             else:
                 print("Not enough plants to sell!")
