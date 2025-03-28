@@ -10,19 +10,19 @@ class Plant(QObject):
         # Image paths for each stage of growth
         self.images = {
             "Sunflower Seed": {
-                0: "assets/images/pinkflower.jpg",
-                1: "assets/images/pinkflower2.png",
-                2: "assets/images/yellowflower.jpg"
+                0: "assets/images/spire1.png",
+                1: "assets/images/spire2.png",
+                2: "assets/images/spire3.png"
             },
             "Rose Seed": {
-                0: "assets/images/rose1.png",
-                1: "assets/images/pinkflower2.png",
-                2: "assets/images/rose1.png"
+                0: "assets/images/spire1.png",
+                1: "assets/images/spire2.png",
+                2: "assets/images/spire3.png"
             },
             "Tulip Seed": {
-                0: "assets/images/plant1.jpg",
-                1: "assets/images/plant3.jpg",
-                2: "assets/images/plant4.jpg"
+                0: "assets/images/spire1.png",
+                1: "assets/images/spire2.png",
+                2: "assets/images/spire3.png"
             }
         }
 
