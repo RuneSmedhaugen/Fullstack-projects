@@ -4,7 +4,7 @@ from PyQt6.QtGui import QPixmap
 from plant import Plant
 from SeedShopUI import SeedShop
 from garden import GardenWidget
-from DirtPatch import DirtPatch  # Import your custom DirtPatch widget
+from DirtPatch import DirtPatch
 import random
 
 class GardenUI(QWidget):
@@ -12,11 +12,11 @@ class GardenUI(QWidget):
         super().__init__()
         self.setWindowTitle("Virtual Garden")
         self.setFixedSize(800, 600)
-        self.setStyleSheet("background-color: #87CEEB;")  # Light blue sky
+        self.setStyleSheet("background-color: #87CEEB;")
 
         # Inventory data
-        self.plant_inventory = {}   # Harvested inventory: {plant type: quantity}
-        self.seed_inventory = {}    # {seed_name: quantity}
+        self.plant_inventory = {}   # Harvested inventory: {plant type: quantity} (e.g., "Sunflower": 3)
+        self.seed_inventory = {}    # {seed_name: quantity} (e.g., "Sunflower Seed": 2)
         self.selected_seed = None   # Currently selected seed to plant
 
         # Dirt Patches Grid (6 static patches using DirtPatch widget)
@@ -47,7 +47,7 @@ class GardenUI(QWidget):
         self.currency_label.setStyleSheet("font-size: 18px; font-weight: bold; color: white;")
 
         # Buttons
-        self.add_plant_button = QPushButton("Open Seed Shop")
+        self.add_plant_button = QPushButton("Open Shop")
         self.add_plant_button.setStyleSheet("font-size: 16px; padding: 10px; border-radius: 10px; background-color: #FFD700; color: black;")
         self.add_plant_button.clicked.connect(self.open_seed_shop)
         self.harvest_button = QPushButton("Harvest Plants")
@@ -72,15 +72,12 @@ class GardenUI(QWidget):
         bottom_bar.addWidget(self.harvest_button)
 
         left_layout = QVBoxLayout()
-        dirt_label = QLabel("Dirt Patches:")
-        dirt_label.setStyleSheet("font-size: 18px; font-weight: bold; color: white;")
-        left_layout.addWidget(dirt_label)
         left_layout.addLayout(self.dirt_grid)
 
         right_layout = QVBoxLayout()
         right_layout.addWidget(self.seed_inventory_label)
         right_layout.addWidget(self.seed_list)
-        harvested_label = QLabel("Harvested Garden:")
+        harvested_label = QLabel("Harvested plants:")
         harvested_label.setStyleSheet("font-size: 18px; font-weight: bold; color: white;")
         right_layout.addWidget(harvested_label)
         right_layout.addWidget(self.harvested_garden)
@@ -119,28 +116,41 @@ class GardenUI(QWidget):
         seed_text = item.text()
         seed_name, _ = seed_text.rsplit(" x", 1)
         self.selected_seed = seed_name
+        item.setSelected(True)
         print(f"Selected seed: {self.selected_seed}")
 
     def dirt_patch_clicked(self, index):
         patch = self.dirt_patches[index]
+    
         # If the patch has a weed, remove it
         if patch.state == "weed":
             patch.state = "empty"
             patch.clear_overlay()
             print(f"Removed weed from patch {index}")
             return
-        # If patch is empty and a seed is selected, plant it
+
+        # If patch is empty and a seed is selected, check seed inventory
         if patch.state == "empty" and self.selected_seed is not None:
+            # Check if there are enough seeds in the inventory
+            if self.selected_seed not in self.seed_inventory or self.seed_inventory[self.selected_seed] <= 0:
+                print(f"Not enough {self.selected_seed} seeds to plant!")
+                return
+
+            # Plant the seed
             plant = Plant(self.selected_seed)
             patch.state = "plant"
             patch.plant = plant
             patch.set_overlay(plant.image_path)
-            if self.selected_seed in self.seed_inventory:
-                self.seed_inventory[self.selected_seed] -= 1
-                if self.seed_inventory[self.selected_seed] <= 0:
-                    del self.seed_inventory[self.selected_seed]
-                self.refresh_seed_list()
+
+            # Remove one seed from inventory
+            self.seed_inventory[self.selected_seed] -= 1
+            if self.seed_inventory[self.selected_seed] <= 0:
+                del self.seed_inventory[self.selected_seed]
+            self.refresh_seed_list()
+
             print(f"Planted {self.selected_seed} in patch {index}")
+
+            # Connect growth signal to update overlay image
             plant.grown.connect(lambda: patch.set_overlay(plant.image_path))
         else:
             print(f"Patch {index} is not available for planting.")
@@ -148,7 +158,7 @@ class GardenUI(QWidget):
     def randomly_place_weeds(self):
         for i, patch in enumerate(self.dirt_patches):
             if patch.state == "empty":
-                if random.random() < 0.2:
+                if random.random() < 0.2:  # 20% chance
                     patch.state = "weed"
                     weed_image = random.choice(["assets/images/weed1.png", "assets/images/weed2.png"])
                     patch.set_overlay(weed_image)
@@ -161,11 +171,13 @@ class GardenUI(QWidget):
                 patch.state = "empty"
                 patch.plant = None
                 patch.clear_overlay()
-                if plant.seed_name in self.plant_inventory:
-                    self.plant_inventory[plant.seed_name] += 1
+                # Use a harvested plant name by removing " Seed" from seed_name
+                harvested_name = plant.seed_name.replace(" Seed", "")
+                if harvested_name in self.plant_inventory:
+                    self.plant_inventory[harvested_name] += 1
                 else:
-                    self.plant_inventory[plant.seed_name] = 1
-                print(f"Harvested {plant.seed_name} from patch {i}")
+                    self.plant_inventory[harvested_name] = 1
+                print(f"Harvested {harvested_name} from patch {i}")
         if hasattr(self, "shop"):
             self.shop.update_sell_list()
         self.harvested_garden.update_plants(self.plant_inventory)

@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QListWidget, QDialog, QTabWidget, QSpinBox
+from PyQt6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWidget, QDialog, QTabWidget, QSpinBox
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QPixmap
 from plant import Plant
@@ -7,7 +7,7 @@ import random
 class SeedShop(QDialog):
     def __init__(self, garden_ui):
         super().__init__()
-        self.setWindowTitle("Seed Shop")
+        self.setWindowTitle("Shop")
         self.setGeometry(200, 200, 400, 400)
         self.garden_ui = garden_ui
 
@@ -37,7 +37,7 @@ class SeedShop(QDialog):
         self.sell_button.clicked.connect(self.sell_plant)
         self.quantity_input = QSpinBox()
         self.quantity_input.setMinimum(1)
-        self.quantity_input.setMaximum(1)
+        self.quantity_input.setMaximum(100)
         self.quantity_input.setSuffix(" pcs")
         sell_layout = QVBoxLayout()
         sell_layout.addWidget(self.sell_list)
@@ -71,10 +71,10 @@ class SeedShop(QDialog):
                 print("Not enough currency!")
 
     def update_sell_prices(self):
-        """Randomize selling prices using keys that match seed names."""
-        self.sell_prices = {"Sunflower Seed": random.randint(8, 12),
-                            "Rose Seed": random.randint(10, 15),
-                            "Tulip Seed": random.randint(9, 13)}
+        """Randomize selling prices using plant names (without ' Seed')."""
+        self.sell_prices = {"Sunflower": random.randint(8, 12),
+                            "Rose": random.randint(10, 15),
+                            "Tulip": random.randint(9, 13)}
         self.sell_price_label.setText("💰 Sell Prices Updated!")
         self.update_sell_list()
 
