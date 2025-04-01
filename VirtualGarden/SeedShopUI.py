@@ -71,11 +71,19 @@ class SeedShop(QDialog):
                 print("Not enough currency!")
 
     def update_sell_prices(self):
-        """Randomize selling prices using plant names (without ' Seed')."""
-        self.sell_prices = {"Sunflower": random.randint(8, 12),
-                            "Rose": random.randint(10, 15),
-                            "Tulip": random.randint(9, 13)}
-        self.sell_price_label.setText("💰 Sell Prices Updated!")
+        self.sell_prices = {
+            "Sunflower": random.randint(8, 12),
+            "Rose": random.randint(10, 15),
+            "Tulip": random.randint(9, 13)
+    }
+
+    # Format the sell prices into a readable string
+        price_text = "💰 Sell Prices:\n"
+        for plant, price in self.sell_prices.items():
+            price_text += f"{plant}: ${price}\n"
+
+    # Update the label to show the prices
+        self.sell_price_label.setText(price_text.strip())
         self.update_sell_list()
 
     def update_sell_list(self):
