@@ -15,16 +15,16 @@ class GardenUI(QWidget):
         self.setStyleSheet("background-color: #87CEEB;")
 
         # Inventory data
-        self.plant_inventory = {}   # Harvested inventory: {plant type: quantity} (e.g., "Sunflower": 3)
-        self.seed_inventory = {}    # {seed_name: quantity} (e.g., "Sunflower Seed": 2)
-        self.selected_seed = None   # Currently selected seed to plant
+        self.plant_inventory = {}
+        self.seed_inventory = {}
+        self.selected_seed = None
 
         # Dirt Patches Grid (6 static patches using DirtPatch widget)
         self.dirt_grid = QGridLayout()
-        self.dirt_patches = []  # List of DirtPatch widgets
+        self.dirt_patches = []
         self.max_patches = 6
         for i in range(self.max_patches):
-            patch = DirtPatch()  # Each patch always shows dirt as background
+            patch = DirtPatch()
             patch.state = "empty"   # "empty", "weed", or "plant"
             patch.plant = None
             # Capture index for click events
@@ -131,7 +131,6 @@ class GardenUI(QWidget):
 
         # If patch is empty and a seed is selected, check seed inventory
         if patch.state == "empty" and self.selected_seed is not None:
-            # Check if there are enough seeds in the inventory
             if self.selected_seed not in self.seed_inventory or self.seed_inventory[self.selected_seed] <= 0:
                 print(f"Not enough {self.selected_seed} seeds to plant!")
                 return
@@ -150,7 +149,6 @@ class GardenUI(QWidget):
 
             print(f"Planted {self.selected_seed} in patch {index}")
 
-            # Connect growth signal to update overlay image
             plant.grown.connect(lambda: patch.set_overlay(plant.image_path))
         else:
             print(f"Patch {index} is not available for planting.")
@@ -171,7 +169,6 @@ class GardenUI(QWidget):
                 patch.state = "empty"
                 patch.plant = None
                 patch.clear_overlay()
-                # Use a harvested plant name by removing " Seed" from seed_name
                 harvested_name = plant.seed_name.replace(" Seed", "")
                 if harvested_name in self.plant_inventory:
                     self.plant_inventory[harvested_name] += 1

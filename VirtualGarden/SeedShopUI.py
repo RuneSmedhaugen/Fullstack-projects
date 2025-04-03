@@ -77,12 +77,12 @@ class SeedShop(QDialog):
             "Tulip": random.randint(9, 13)
     }
 
-    # Format the sell prices into a readable string
+        # Update the sell prices label
         price_text = "💰 Sell Prices:\n"
         for plant, price in self.sell_prices.items():
             price_text += f"{plant}: ${price}\n"
 
-    # Update the label to show the prices
+        # Update the label to show the prices
         self.sell_price_label.setText(price_text.strip())
         self.update_sell_list()
 
@@ -108,7 +108,6 @@ class SeedShop(QDialog):
                 if self.garden_ui.plant_inventory[plant_name] <= 0:
                     del self.garden_ui.plant_inventory[plant_name]
                 self.update_sell_list()
-                # Update harvested garden display based on remaining inventory
                 self.garden_ui.harvested_garden.update_plants(self.garden_ui.plant_inventory)
                 print(f"Sold {sell_quantity} {plant_name}(s) for ${sell_price * sell_quantity}!")
             else:

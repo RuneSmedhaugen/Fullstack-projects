@@ -5,9 +5,8 @@ class Plant(QObject):
 
     def __init__(self, seed_name):
         super().__init__()
-        self.stage = 0  # Initial growth stage
+        self.stage = 0
         
-        # Image paths for each growth stage
         self.images = {
             "Sunflower Seed": {
                 0: "assets/images/spire1.png",
@@ -28,7 +27,7 @@ class Plant(QObject):
         self.seed_name = seed_name
         self.image_path = self.images.get(seed_name, {}).get(self.stage, "assets/images/default_plant.png")
         
-        # Timer for growth (advance stage every 5 seconds)
+        # Timer for growth (new stage every 5 seconds)
         self.timer = QTimer()
         self.timer.timeout.connect(self.grow)
         self.timer.start(5000)
