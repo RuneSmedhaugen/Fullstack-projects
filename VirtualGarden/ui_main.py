@@ -199,8 +199,18 @@ class GardenUI(QWidget):
             print("Not enough currency!")
 
     def sell_plant(self, plant_name, quantity, price):
-        self.currency += price * quantity
-        self.update_currency_display()
-        self.scoreboard.update_stat("Money Earned", price * quantity)
-        self.scoreboard.update_stat("Plants Sold", {plant_name: quantity})
-        print(f"Sold {quantity} {plant_name}(s) for ${price * quantity}!")
+        if plant_name in self.plant_inventory:
+            if self.plant_inventory[plant_name] >= quantity:
+                self.plant_inventory[plant_name] -= quantity
+                if self.plant_inventory[plant_name] == 0:
+                    del self.plant_inventory[plant_name]  # Remove plant if quantity is zero
+
+                # Update currency and scoreboard
+                self.currency += price * quantity
+                self.update_currency_display()
+                self.scoreboard.update_stat("Money Earned", price * quantity)
+                self.scoreboard.update_stat("Plants Sold", {plant_name: quantity})
+
+                print(f"Sold {quantity} {plant_name}(s) for ${price * quantity}!")
+            else:
+                print(f"Not enough {plant_name} to sell!")

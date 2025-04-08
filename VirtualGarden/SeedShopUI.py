@@ -94,5 +94,11 @@ class SeedShop(QDialog):
             quantity = int(quantity_text)
             sell_price = self.sell_prices.get(plant_name, 0)
             sell_quantity = self.quantity_input.value()
+
             if sell_quantity <= quantity:
+                # Update the garden UI's inventory
                 self.garden_ui.sell_plant(plant_name, sell_quantity, sell_price)
+
+                # Update the sell list and harvested plants list
+                self.update_sell_list()
+                self.garden_ui.harvested_garden.update_plants(self.garden_ui.plant_inventory)
