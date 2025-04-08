@@ -6,6 +6,7 @@ from SeedShopUI import SeedShop
 from garden import GardenWidget
 from DirtPatch import DirtPatch
 import random
+from Scoreboard import Scoreboard
 
 class GardenUI(QWidget):
     def __init__(self):
@@ -13,6 +14,7 @@ class GardenUI(QWidget):
         self.setWindowTitle("Virtual Garden")
         self.setFixedSize(800, 600)
         self.setStyleSheet("background-color: #87CEEB;")
+        self.scoreboard = Scoreboard()
 
         # Inventory data
         self.plant_inventory = {}
@@ -81,6 +83,7 @@ class GardenUI(QWidget):
         harvested_label.setStyleSheet("font-size: 18px; font-weight: bold; color: white;")
         right_layout.addWidget(harvested_label)
         right_layout.addWidget(self.harvested_garden)
+        right_layout.addWidget(self.scoreboard)
 
         center_layout = QHBoxLayout()
         center_layout.addLayout(left_layout)
@@ -126,6 +129,7 @@ class GardenUI(QWidget):
         if patch.state == "weed":
             patch.state = "empty"
             patch.clear_overlay()
+            self.scoreboard.update_stat("Weeds Removed", 1)
             print(f"Removed weed from patch {index}")
             return
 
@@ -148,6 +152,7 @@ class GardenUI(QWidget):
             self.refresh_seed_list()
 
             print(f"Planted {self.selected_seed} in patch {index}")
+            self.scoreboard.update_stat("Plants Planted", 1)
 
             plant.grown.connect(lambda: patch.set_overlay(plant.image_path))
         else:
@@ -182,3 +187,20 @@ class GardenUI(QWidget):
     def open_seed_shop(self):
         self.shop = SeedShop(self)
         self.shop.exec()
+
+    def buy_seed(self, seed_name, price):
+        if self.currency >= price:
+            self.currency -= price
+            self.update_currency_display()
+            self.update_seed_inventory(seed_name)
+            self.scoreboard.update_stat("Money Spent", price)
+            print(f"Bought {seed_name} for ${price}!")
+        else:
+            print("Not enough currency!")
+
+    def sell_plant(self, plant_name, quantity, price):
+        self.currency += price * quantity
+        self.update_currency_display()
+        self.scoreboard.update_stat("Money Earned", price * quantity)
+        self.scoreboard.update_stat("Plants Sold", {plant_name: quantity})
+        print(f"Sold {quantity} {plant_name}(s) for ${price * quantity}!")

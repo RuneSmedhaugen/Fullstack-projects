@@ -62,13 +62,7 @@ class SeedShop(QDialog):
         if selected_item:
             seed_name, price_text = selected_item.text().split(" - $")
             price = int(price_text)
-            if self.garden_ui.currency >= price:
-                self.garden_ui.currency -= price
-                self.garden_ui.update_currency_display()
-                self.garden_ui.update_seed_inventory(seed_name)
-                print(f"Bought {seed_name} for ${price}!")
-            else:
-                print("Not enough currency!")
+            self.garden_ui.buy_seed(seed_name, price)
 
     def update_sell_prices(self):
         self.sell_prices = {
@@ -93,7 +87,6 @@ class SeedShop(QDialog):
             self.sell_list.addItem(f"{plant} x{quantity}")
 
     def sell_plant(self):
-        """Sell selected plants and update the harvested garden display."""
         selected_item = self.sell_list.currentItem()
         if selected_item:
             plant_text = selected_item.text()
@@ -102,13 +95,4 @@ class SeedShop(QDialog):
             sell_price = self.sell_prices.get(plant_name, 0)
             sell_quantity = self.quantity_input.value()
             if sell_quantity <= quantity:
-                self.garden_ui.currency += sell_price * sell_quantity
-                self.garden_ui.update_currency_display()
-                self.garden_ui.plant_inventory[plant_name] -= sell_quantity
-                if self.garden_ui.plant_inventory[plant_name] <= 0:
-                    del self.garden_ui.plant_inventory[plant_name]
-                self.update_sell_list()
-                self.garden_ui.harvested_garden.update_plants(self.garden_ui.plant_inventory)
-                print(f"Sold {sell_quantity} {plant_name}(s) for ${sell_price * sell_quantity}!")
-            else:
-                print("Not enough plants to sell!")
+                self.garden_ui.sell_plant(plant_name, sell_quantity, sell_price)
