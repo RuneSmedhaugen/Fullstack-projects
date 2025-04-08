@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QListWidget, QGridLayout
 from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QGuiApplication
 from plant import Plant
 from SeedShopUI import SeedShop
 from garden import GardenWidget
@@ -15,6 +15,9 @@ class GardenUI(QWidget):
         self.setFixedSize(800, 600)
         self.setStyleSheet("background-color: #87CEEB;")
         self.scoreboard = Scoreboard()
+
+        screen = QGuiApplication.primaryScreen().geometry()
+        self.setFixedSize(int(screen.width() * 0.9), int(screen.height() * 0.9))
 
         # Inventory data
         self.plant_inventory = {}
