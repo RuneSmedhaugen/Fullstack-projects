@@ -39,6 +39,7 @@ Enjoy planting and selling your leafy empire!
 Known bugs and stuff
 Selling prices updates every time you open seed shop instead of a fixed time
 only 1 image for all plants (you can add  your own images if you want)
+0 balance, only for testing.
 
 
 💡 Future Ideas
