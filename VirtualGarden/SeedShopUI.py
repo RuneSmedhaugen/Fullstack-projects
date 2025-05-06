@@ -99,6 +99,9 @@ class SeedShop(QDialog):
                 # Update the garden UI's inventory
                 self.garden_ui.sell_plant(plant_name, sell_quantity, sell_price)
 
+                # Remove plants from PlayerGarden
+                self.garden_ui.player_garden.remove_plants(plant_name, sell_quantity)
+
                 # Update the sell list and harvested plants list
                 self.update_sell_list()
                 self.garden_ui.harvested_garden.update_plants(self.garden_ui.plant_inventory)
